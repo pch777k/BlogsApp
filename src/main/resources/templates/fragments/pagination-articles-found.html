@@ -1,0 +1,73 @@
+<div th:fragment="pagination-articles-found(href)">
+	
+<!-- Pagination articles --> 
+<nav th:if="${pageArticlesFound.totalPages > 1}" aria-label="Page navigation">
+  <ul class="pagination pagination-sm ">
+	<li class="page-item" th:classappend="${pageArticlesFound.number == 0} ? 'disabled'">
+	  <a class="page-link" th:href="@{${href} (pageArticle=${1}, keyword=${keyword})}">&laquo;</a>				    	
+	</li>	  
+	<li class="page-item" th:classappend="${pageArticlesFound.number == 0} ? 'disabled'">
+	  <a class="page-link" th:href="@{${href} (pageArticle=${pageArticlesFound.number}, keyword=${keyword})}">&lsaquo;</a>
+	</li>	
+				    
+	<th:block th:if="${totalPages <= 7}">       					    
+	  <li class="page-item" th:classappend="${i == pageArticlesFound.number+1} ? 'active'" th:each="i: ${#numbers.sequence(1, pageArticlesFound.totalPages)}">
+	    <a class="page-link" th:href="@{${href} (pageArticle=${i}, keyword=${keyword})}" th:text="${i}"></a>
+	  </li>		
+	</th:block>
+				    
+	<th:block th:if="${totalPages > 7}">	    	
+	  <th:block th:if="${currentPage <= 3}">				    		
+		<li class="page-item" th:classappend="${i == pageArticlesFound.number+1} ? 'active'" th:each="i: ${#numbers.sequence(1, 4)}">
+		  <a class="page-link" th:href="@{${href} (pageArticle=${i}, keyword=${keyword})}" th:text="${i}"></a>
+		</li>
+		<li class="page-item">	
+		  <a class="page-link" th:text="..."></a>
+		</li>
+		<li class="page-item">
+		  <a class="page-link" th:href="@{${href} (pageArticle=${pageArticlesFound.totalPages}, keyword=${keyword})}" th:text="${pageArticlesFound.totalPages}"></a>
+		</li>
+	  </th:block>
+				    		
+	  <th:block th:if="${currentPage > 3 && currentPage <= pageArticlesFound.totalPages - 3}">
+		<li class="page-item">	
+		  <a class="page-link" th:href="@{${href} (pageArticle=${i}, keyword=${keyword})}" th:text="${1}"></a>
+		</li>	
+		<li class="page-item">
+		  <a class="page-link" th:text="..."></a>
+		</li>
+		<li class="page-item" th:classappend="${i == pageArticlesFound.number+1} ? 'active'" th:each="i: ${#numbers.sequence(pageArticlesFound.number, pageArticlesFound.number+2)}">
+		  <a class="page-link" th:href="@{${href} (pageArticle=${i}, keyword=${keyword})}" th:text="${i}"></a>
+		</li>
+		<li class="page-item">			    			
+		  <a class="page-link" th:text="..."></a>
+		</li>
+		<li class="page-item">	
+		  <a class="page-link" th:href="@{${href} (pageArticle=${pageArticlesFound.totalPages}, keyword=${keyword})}" th:text="${pageArticlesFound.totalPages}"></a>
+		</li>
+	  </th:block>	
+	  <th:block th:if="${currentPage > pageArticlesFound.totalPages - 3}">
+		<li class="page-item">
+		  <a class="page-link" th:href="@{${href} (pageArticle=${i}, keyword=${keyword})}" th:text="${1}"></a>	
+		</li>
+		<li class="page-item">
+		  <a class="page-link" th:text="..."></a>
+		</li>
+		<li class="page-item" th:classappend="${i == pageArticlesFound.number+1} ? 'active'" th:each="i: ${#numbers.sequence(pageArticlesFound.totalPages-3, pageArticlesFound.totalPages)}">
+		  <a class="page-link" th:href="@{${href} (pageArticle=${i}, keyword=${keyword})}" th:text="${i}"></a>
+		</li>
+	  </th:block>						    	
+	</th:block>	    	
+						    	
+	<li class="page-item" th:classappend="${pageArticlesFound.number + 1 == pageArticlesFound.totalPages} ? 'disabled'">		    
+	  <a class="page-link" th:href="@{${href} (pageArticle=${pageArticlesFound.number+2}, keyword=${keyword})}">&rsaquo;</a>
+	</li>
+	<li class="page-item" th:classappend="${pageArticlesFound.number + 1 == pageArticlesFound.totalPages} ? 'disabled'">
+	  <a class="page-link" th:href="@{${href} (pageArticle=${pageArticlesFound.totalPages}, keyword=${keyword})}">&raquo;</a>
+	</li>
+  </ul>
+</nav>									
+<!-- Pagination comments -->
+	
+</div>
+

@@ -1,0 +1,73 @@
+<div th:fragment="pagination-comments(href)">
+	
+<!-- Pagination comments --> 
+<nav th:if="${pageComments.totalPages > 1}" aria-label="Page navigation">
+  <ul class="pagination pagination-sm ">
+	<li class="page-item" th:classappend="${pageComments.number == 0} ? 'disabled'">
+	  <a class="page-link" th:href="@{${href} (page=${1})}">&laquo;</a>				    	
+	</li>	  
+	<li class="page-item" th:classappend="${pageComments.number == 0} ? 'disabled'">
+	  <a class="page-link" th:href="@{${href} (page=${pageComments.number})}">&lsaquo;</a>
+	</li>	
+				    
+	<th:block th:if="${totalPages <= 7}">       					    
+	  <li class="page-item" th:classappend="${i == pageComments.number+1} ? 'active'" th:each="i: ${#numbers.sequence(1, pageComments.totalPages)}">
+	    <a class="page-link" th:href="@{${href} (page=${i})}" th:text="${i}"></a>
+	  </li>		
+	</th:block>
+				    
+	<th:block th:if="${totalPages > 7}">	    	
+	  <th:block th:if="${currentPage <= 3}">				    		
+		<li class="page-item" th:classappend="${i == pageComments.number+1} ? 'active'" th:each="i: ${#numbers.sequence(1, 4)}">
+		  <a class="page-link" th:href="@{${href} (page=${i})}" th:text="${i}"></a>
+		</li>
+		<li class="page-item">	
+		  <a class="page-link" th:text="..."></a>
+		</li>
+		<li class="page-item">
+		  <a class="page-link" th:href="@{${href} (page=${pageComments.totalPages})}" th:text="${pageComments.totalPages}"></a>
+		</li>
+	  </th:block>
+				    		
+	  <th:block th:if="${currentPage > 3 && currentPage <= pageComments.totalPages - 3}">
+		<li class="page-item">	
+		  <a class="page-link" th:href="@{${href} (page=${1})}" th:text="${1}"></a>
+		</li>	
+		<li class="page-item">
+		  <a class="page-link" th:text="..."></a>
+		</li>
+		<li class="page-item" th:classappend="${i == pageComments.number+1} ? 'active'" th:each="i: ${#numbers.sequence(pageComments.number, pageComments.number+2)}">
+		  <a class="page-link" th:href="@{${href} (page=${i})}" th:text="${i}"></a>
+		</li>
+		<li class="page-item">			    			
+		  <a class="page-link" th:text="..."></a>
+		</li>
+		<li class="page-item">	
+		  <a class="page-link" th:href="@{${href} (page=${pageComments.totalPages})}" th:text="${pageComments.totalPages}"></a>
+		</li>
+	  </th:block>	
+	  <th:block th:if="${currentPage > pageComments.totalPages - 3}">
+		<li class="page-item">
+		  <a class="page-link" th:href="@{${href} (page=${1})}" th:text="${1}"></a>	
+		</li>
+		<li class="page-item">
+		  <a class="page-link" th:text="..."></a>
+		</li>
+		<li class="page-item" th:classappend="${i == pageComments.number+1} ? 'active'" th:each="i: ${#numbers.sequence(pageComments.totalPages-3, pageComments.totalPages)}">
+		  <a class="page-link" th:href="@{${href} (page=${i})}" th:text="${i}"></a>
+		</li>
+	  </th:block>						    	
+	</th:block>	    	
+						    	
+	<li class="page-item" th:classappend="${pageComments.number + 1 == pageComments.totalPages} ? 'disabled'">		    
+	  <a class="page-link" th:href="@{${href} (page=${pageComments.number+2})}">&rsaquo;</a>
+	</li>
+	<li class="page-item" th:classappend="${pageComments.number + 1 == pageComments.totalPages} ? 'disabled'">
+	  <a class="page-link" th:href="@{${href} (page=${pageComments.totalPages})}">&raquo;</a>
+	</li>
+  </ul>
+</nav>									
+<!-- Pagination comments -->
+	
+</div>
+

@@ -1,0 +1,42 @@
+<div th:fragment="nav(href, search)">
+
+	<!-- Navigation -->
+	<ul class="nav justify-content-center ">
+		<li class="nav-item">
+			<a class="nav-link text-secondary" th:href="@{/}">Home</a>
+		</li>
+		<li class="nav-item dropdown">
+			<a class="nav-link text-secondary dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+				aria-haspopup="true" aria-expanded="false">Blogs</a>
+			<div class="dropdown-menu">
+				<th:block th:each="blog: ${blogs}">
+					<a class="dropdown-item text-secondary" th:href="@{'/blogs/' + ${blog.id}}"
+						th:text="${blog.name}">blog name</a>
+				</th:block>
+			</div>
+		</li>
+		<li class="nav-item dropdown">
+			<a class="nav-link text-secondary dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+				aria-haspopup="true" aria-expanded="false">Categories</a>
+			<div class="dropdown-menu">
+				<th:block th:each="categ: ${categories}">
+					<a class="dropdown-item text-secondary" th:href="@{'/categories/' + ${categ.name}}"
+						th:text="${#strings.toUpperCase(categ.name)}">category name</a>
+				</th:block>
+			</div>
+		</li>
+		<li>
+			<form class="form-inline" th:action="@{${href} (name=${keyword})}">
+				<div class="input-group input-group-sm my-1 ">
+					<input type="search" placeholder="Search" class="form-control" name="keyword" aria-label="Search">
+					<div class="input-group-append">
+						<button class="btn btn-sm btn-outline-secondary" type="submit" th:text="${search}">Search</button>
+					</div>
+				</div>
+			</form>
+		</li>
+	</ul>
+
+	<!-- Navigation -->
+
+</div>

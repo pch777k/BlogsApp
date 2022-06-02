@@ -1,0 +1,271 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<title>Blogs</title>
+
+	<div th:replace="fragments/base :: baseHeader"></div>
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="border rounded p-1 mt-2">
+			<button class="btn btn-sm btn-info mr-2">Information</button>
+			The initial data in the application is randomly generated each time it is started.
+		</div>
+		<div th:replace="fragments/header :: header"></div>
+
+		<div th:replace="fragments/nav :: nav(href='/', search='search')"></div>
+
+
+
+
+
+
+
+		<th:block th:unless="${searchKeyword}">
+			<h3 class="text-center border-bottom pb-2 mt-3 blog-header-section">Recommended articles</h3>
+			<div class="row mt-3">
+				<div th:each="mostComArt: ${mostCommentedArticles}"
+					class="col-12 col-md-4 mt-3 d-flex align-items-stretch">
+					<div class="card mb-3 " style="width: 100%;">
+						<a th:href="@{'/articles/' + ${mostComArt.id}}">
+							<img th:src="@{'/articles/' + ${mostComArt.id} + '/image'}" class="w-100" height="200"
+								alt="blog image">
+						</a>
+						<div class="card-body">
+							<a class="category-header text-info"
+								th:href="@{'/categories/' + ${mostComArt.category.name}}"
+								th:text="${#strings.toUpperCase(mostComArt.category.name)}"></a>
+							<a th:href="@{'/articles/' + ${mostComArt.id}}" style="text-decoration: none;">
+								<h5 class="card-title text-secondary mb-0" th:text="${mostComArt.title}">Card
+									title</h5>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</th:block>
+		<th:block th:if="${searchKeyword}">
+			<h3 class="text-center border-bottom pb-2 mt-3 blog-header-section">Articles found</h3>
+			<div class="row mt-3">
+				<div th:each="artFound: ${pageArticlesFound}" class="col-12 col-md-4 mt-3 d-flex align-items-stretch">
+					<div class="card mb-3 " style="width: 100%;">
+						<a th:href="@{'/articles/' + ${artFound.id}}">
+							<img th:src="@{'/articles/' + ${artFound.id} + '/image'}" class="w-100" height="200"
+								alt="blog image">
+						</a>
+						<div class="card-body">
+							<a class="category-header text-info" th:href="@{'/categories/' + ${artFound.category.name}}"
+								th:text="${#strings.toUpperCase(artFound.category.name)}"></a>
+							<a th:href="@{'/articles/' + ${artFound.id}}" style="text-decoration: none;">
+								<h5 class="card-title text-secondary mb-0" th:text="${artFound.title}">Card
+									title</h5>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="d-flex justify-content-center">
+					<!-- Pagination -->
+					<div th:replace="fragments/pagination-articles-found :: pagination-articles-found(href='/')"></div>
+					
+				</div>
+			<div th:if="${articlesFoundIsEmpty}" class="border rounded p-1 mt-2">
+			<span class="mx-2 pl-1">No articles found for:</span><strong><span class="mr-4" th:text="${keyword}"></span></strong>
+		</div>
+		</th:block>
+
+	</div>
+
+	<main class="container mt-4">
+		<div class="row ">
+			<div class="col-12 col-lg-9">
+			<th:block th:unless="${searchKeyword}">
+				<h3 class="text-center border-bottom pb-2 blog-header-section">Trending blogs</h3>
+				
+				<div class="row">
+
+					<div th:each="blog: ${pageBlogs}" class="col-12 col-md-6 mt-3 d-flex align-items-stretch">
+						<div class="card mb-3 " style="width: 100%;">
+							<a th:href="@{'/blogs/' + ${blog.id}}">
+								<img th:src="@{'/blogs/' + ${blog.id} + '/image'}" class="w-100" height="200"
+									alt="blog image">
+							</a>
+							<div class="card-body d-flex flex-column">
+								<a th:href="@{'/blogs/' + ${blog.id}}" style="text-decoration: none;">
+									<h5 class="card-title text-secondary" th:text="${blog.name}">Card title</h5>
+								</a>
+
+								<p class="card-text" th:text="${blog.description}">Card text</p>
+								<div class="align-self-end" style="margin-top: auto; margin-right: auto;">
+									<img th:src="@{'/users/' + ${blog.user.id} + '/image'}" width="40" height="40"
+										class="rounded-circle" alt="user's avatar">
+									<span class"ml-2"></span>
+									<span class="card-text p-2" th:text="${blog.user.username}">username</span>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</th:block>
+			<th:block th:if="${searchKeyword}">
+				<h3 class="text-center border-bottom pb-2 blog-header-section">Blogs found</h3>
+				
+				<div class="row">
+
+					<div th:each="blog: ${pageBlogs}" class="col-12 col-md-6 mt-3 d-flex align-items-stretch">
+						<div class="card mb-3 " style="width: 100%;">
+							<a th:href="@{'/blogs/' + ${blog.id}}">
+								<img th:src="@{'/blogs/' + ${blog.id} + '/image'}" class="w-100" height="200"
+									alt="blog image">
+							</a>
+							<div class="card-body d-flex flex-column">
+								<a th:href="@{'/blogs/' + ${blog.id}}" style="text-decoration: none;">
+									<h5 class="card-title text-secondary" th:text="${blog.name}">Card title</h5>
+								</a>
+
+								<p class="card-text" th:text="${blog.description}">Card text</p>
+								<div class="align-self-end" style="margin-top: auto; margin-right: auto;">
+									<img th:src="@{'/users/' + ${blog.user.id} + '/image'}" width="40" height="40"
+										class="rounded-circle" alt="user's avatar">
+									<span class"ml-2"></span>
+									<span class="card-text p-2" th:text="${blog.user.username}">username</span>
+								</div>
+
+							</div>
+						</div>
+					</div>
+					
+
+				</div>
+				<div th:if="${blogsFoundIsEmpty}" class="border rounded p-1 mt-2">
+			<span class="mx-2 pl-1">No blogs found for:</span><strong><span class="mr-4" th:text="${keyword}"></span></strong>
+		</div>
+			</th:block>
+				<div class="d-flex justify-content-center">
+					<!-- Pagination -->
+					<th:block th:unless="${searchKeyword}">
+					<div th:replace="fragments/pagination-blogs :: pagination-blogs(href='/')"></div>
+					</th:block>
+					<th:block th:if="${searchKeyword}">
+					<div th:replace="fragments/pagination-blogs-found :: pagination-blogs-found(href='/')"></div>
+					</th:block>
+				</div>
+			</div>
+			<!-- Sidebar START -->
+			<div class="col-12 col-lg-3 mt-5 mt-lg-0">
+				<h3 class="text-center border-bottom pb-2 blog-header-section">Summary</h3>
+				<div data-sticky data-margin-top="80" data-sticky-for="767">
+
+					<!-- Social widget START -->
+					<div class="row g-0">
+						<div class="col-6 mt-3 mb-2">
+							<div class="border link-decoration-none rounded text-info text-center py-3 d-block">
+								<h6 class="m-0" th:text="${totalBlogs}">total blogs</h6>
+								<span class="small">Blogs</span>
+							</div>
+						</div>
+						<div class="col-6 mt-3 mb-2">
+							<div class="border link-decoration-none text-info rounded text-center py-3 d-block">
+								<h6 class="m-0" th:text="${totalArticles}">total articles</h6>
+								<span class="small">Articles</span>
+							</div>
+						</div>
+					</div>
+
+					<div class="row g-0">
+						<div class="col-6">
+							<div class="border link-decoration-none text-info rounded text-center py-3 d-block">
+								<h6 class="m-0" th:text="${totalUsers}">total users</h6>
+								<span class="small">Users</span>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="border link-decoration-none text-info rounded text-center py-3 d-block">
+								<h6 class="m-0" th:text="${totalComments}">total comments</h6>
+								<span class="small">Comments</span>
+							</div>
+						</div>
+					</div>
+					<!-- Social widget END -->
+
+					<!-- Trending topics widget START -->
+					<div>
+						<h4 class="mt-4 mb-3 text-center blog-header-sidebar">Top categories</h4>
+						<ol class="list-unstyled">
+							<!--								<li><a href="">All</a></li>-->
+							<li th:each="category: ${topFourCategories}">
+								<a class="btn btn-sm btn-outline-info btn-block mb-1"
+									th:href="@{'/categories/' + ${category.name}}"
+									th:text="${#strings.toUpperCase(category.name)}">category
+									name</a>
+							</li>
+
+						</ol>
+
+
+					</div>
+					<!-- Trending topics widget END -->
+
+					<!-- Trending topics widget START -->
+					<div>
+						<h4 class="mt-4 mb-3 text-center blog-header-sidebar">Popular tags</h4>
+						<div class="row">
+							<div th:each="tag: ${tags}" class="col-6 mb-1">
+								<a class="btn btn-sm btn-info btn-block" th:href="@{'/tags/' + ${tag.name}}"
+									th:text="${tag.name}"></a>
+							</div>
+						</div>
+
+
+					</div>
+					<!-- Trending topics widget END -->
+
+					<div class="row">
+						<!-- Recent post widget START -->
+						<div class="col-12 mb-4">
+							<h4 class="mt-4 mb-2 text-center blog-header-sidebar">Recent articles</h4>
+							<!-- Recent post item -->
+							<div th:each="art : ${latestArticles}" class="card border-0 mb-1">
+								<div class="row ">
+									<div class="col-12 ">
+										<a class="category-header text-info"
+											th:href="@{'/categories/' + ${art.category.name}}"
+											th:text="${#strings.toUpperCase(art.category.name)}"></a>
+										<h6><a th:href="@{'/articles/' + ${art.id}}" th:text="${art.title}"
+												class="btn-link stretched-link link-decoration-none text-dark fw-bold">Five
+												unbelievable facts about money.</a></h6>
+										<div class="small pb-1 mt-1 border-bottom"
+											th:text="${#temporals.format(art.createdAt, 'dd-MM-yyyy')}">Nov 29, 2022
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<!-- Sidebar END -->
+		</div>
+
+
+
+
+
+
+
+
+	</main>
+
+<div class="container">
+<div th:replace="fragments/footer :: footer"></div>
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+<div th:fragment="modal-category">
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="row d-flex justify-content-center">
+		  <div class="col-10  text-center">
+			<span class="blog-form-tag-logo text-dark">Category</span>
+			<form th:action="@{/categories/add}" th:object="${categoryDto}" method="post" class="row g-3">
+		  	  <div class="col-12">
+			    <input type="text" th:field="*{name}" id="tagCategory" class="form-control my-3" required placeholder="new category">
+			    <small><span class="text text-danger" th:if="${#fields.hasErrors('name')}"
+											th:errors="*{name}"></span></small>
+			    <button type="button" class="btn btn-outline-secondary mr-2" data-dismiss="modal">Close</button>
+        	    <button type="submit" class="btn btn-outline-primary">Create</button>
+		      </div>
+            </form>
+		  </div>
+		</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+
+</div>

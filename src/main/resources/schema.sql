@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS tags;
+CREATE TABLE tags(id serial PRIMARY KEY, name VARCHAR(255));
