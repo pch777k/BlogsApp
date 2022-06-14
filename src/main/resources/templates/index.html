@@ -18,6 +18,13 @@
 
 		<div th:replace="fragments/nav :: nav(href='/', search='search')"></div>
 
+		<th:block th:if="${totalBlogs == 0}">
+		<div class="border rounded p-1 mt-2">
+			<a th:href="@{/}" class="btn btn-sm btn-info mr-2">Refresh page</a>
+			If heroku did not load sample data, try refreshing the page.
+		</div>
+		</th:block>
+
 		<th:block th:unless="${searchKeyword}">
 			<h3 class="text-center border-bottom pb-2 mt-3 blog-header-section">Recommended articles</h3>
 			<div class="row mt-3">
