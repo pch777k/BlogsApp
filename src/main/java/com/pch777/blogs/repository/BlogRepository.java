@@ -16,10 +16,6 @@ public interface BlogRepository extends JpaRepository<Blog, Long> {
 	
 	Optional<Blog> findByUser(UserEntity user);
 	
-//	@Override
-//	@Query("select distinct b "
-//			+ "from Blog b "
-//			+ "join fetch b.articles")
 	List<Blog> findAll();
 	
 	@Query ("SELECT DISTINCT b "

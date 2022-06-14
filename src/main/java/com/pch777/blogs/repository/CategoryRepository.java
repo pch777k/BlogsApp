@@ -15,4 +15,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 	@Override
 	@Query("select distinct c from Category c left join fetch c.articles")
 	List<Category> findAll();
+	
+	@Query("select distinct c from Category c left join fetch c.articles order by c.name")
+	List<Category> findAllOrderByName();
 }

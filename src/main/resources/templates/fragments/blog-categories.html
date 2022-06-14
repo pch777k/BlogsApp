@@ -1,0 +1,16 @@
+<div th:fragment="blog-categories">
+
+	<!-- Blog categories -->
+	<div class="px-4 mb-3">
+		<h4 class="fst-italic">Blog categories</h4>
+		<ol class="list-unstyled">
+			<li th:each="blogCategory: ${blogCategories}">
+				<a class="category-header text-secondary"
+					th:href="@{'/blogs/' + ${blog.id} + '/category/' + ${blogCategory.name}}"
+					th:text="${#strings.toUpperCase(blogCategory.name)}"></a>
+			</li>
+		</ol>
+	</div>
+	<!-- Blog categories -->
+
+</div>

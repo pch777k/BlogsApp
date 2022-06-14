@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class CategoryDto {
+	
 	@NotBlank(message = "Category name may not be blank")
 	private String name;
 }

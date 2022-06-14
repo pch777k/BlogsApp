@@ -33,7 +33,6 @@ public class BlogService {
 		System.out.println("user: " + auth.getName());
 		Optional<Blog> blog = blogRepository.findByUser(user);
 		return blog.isPresent();
-//		return true;
 	}
 	
 	public Optional<Blog> getBlogById(Long id) {

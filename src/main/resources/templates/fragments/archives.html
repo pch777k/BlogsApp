@@ -1,0 +1,16 @@
+<div th:fragment="archives">
+
+	<!-- Archives -->
+	<div class="px-4 mb-4">
+		<h4 class="fst-italic">Archives</h4>
+		<ol class="list-unstyled mb-0">
+			<li th:each="date: ${monthAndYear}">
+				<a class="link-decoration-none text-secondary"
+					th:text="${#strings.capitalize(date.month)} + ' ' + ${date.year}"
+					th:href="@{'/blogs/' + ${blog.id} + '/' + ${date.month} + '/' + ${date.year}}">Month YYYY</a>
+			</li>
+		</ol>
+	</div>
+	<!-- Archives -->
+
+</div>

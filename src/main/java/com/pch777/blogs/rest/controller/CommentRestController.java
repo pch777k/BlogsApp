@@ -50,7 +50,6 @@ public class CommentRestController {
 	}
 	
 	@Transactional
-//	@PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 	@PostMapping("/articles/{articleId}/comments")
 	public ResponseEntity<Object> addComment(@Valid @RequestBody CommentDto commentDto, 
 			@PathVariable Long articleId, Principal principal) {
@@ -66,7 +65,6 @@ public class CommentRestController {
 	}
 	
 	@Transactional
-//	@PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 	@PutMapping("comments/{commentId}")
 	public ResponseEntity<Object> updateComment(@RequestBody CommentDto commentDto, 
 			@PathVariable Long commentId, Principal principal) {
@@ -82,7 +80,6 @@ public class CommentRestController {
 	}
 	
 	@Transactional
-	//@PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 	@DeleteMapping("comments/{commentId}")
 	public ResponseEntity<Object> deleteCommentById(@PathVariable Long commentId, Principal principal) {
 		return commentService.getCommentById(commentId)

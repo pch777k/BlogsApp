@@ -12,14 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import com.pch777.blogs.dto.BlogDto;
 import com.pch777.blogs.model.Blog;
 import com.pch777.blogs.model.UserEntity;
 import com.pch777.blogs.repository.BlogRepository;
 import com.pch777.blogs.repository.UserEntityRepository;
 import com.pch777.blogs.response.MessageResponse;
-import com.pch777.blogs.service.BlogService;
 
 import lombok.AllArgsConstructor;
 

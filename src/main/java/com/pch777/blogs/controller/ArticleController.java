@@ -5,9 +5,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -47,7 +45,6 @@ import com.pch777.blogs.model.ImageFile;
 import com.pch777.blogs.model.Tag;
 import com.pch777.blogs.model.UserEntity;
 import com.pch777.blogs.repository.BlogRepository;
-import com.pch777.blogs.repository.TagRepository;
 import com.pch777.blogs.repository.UserEntityRepository;
 import com.pch777.blogs.security.UserSecurity;
 import com.pch777.blogs.service.ArticleService;
@@ -69,7 +66,6 @@ public class ArticleController {
 	private final BlogRepository blogRepository;
 	private final UserEntityRepository userRepository;
 	private final CategoryService categoryService;
-	private final TagRepository tagRepository;
 	private final TagService tagService;
 	private final CommentService commentService;
 	private final UserSecurity userSecurity;
@@ -103,14 +99,8 @@ public class ArticleController {
 			.distinct()
 			.collect(Collectors.toList());
 		
-		List<Category> categories = categoryService
-				.findAllCategories()
-				.stream()
-				.sorted(Comparator.comparing(Category::getName))
-				.collect(Collectors.toList());
-		
-		
-		
+		List<Category> categories = categoryService.findAllCategoriesSortedByName();
+			
 		List<Category> blogCategories = articleService
 				.getArticlesByBlogId(blog.getId())
 				.stream()
@@ -134,16 +124,7 @@ public class ArticleController {
 		model.addAttribute("createButton", createButton);
 		model.addAttribute("loggedUser", username);
 		model.addAttribute("hasBlog", hasBlog);
-		//model.addAttribute("category", category);
-//		model.addAttribute("commentDto", new CommentDto());
-//		model.addAttribute("currentUser", userService.findUserByEmail(email));
-//		model.addAttribute("totalComments", pageCommentsByArticleId.getTotalElements());
 		model.addAttribute("pageComments", pageComments);
-//		model.addAttribute("pageTotalComments", pageCommentsByArticleId.getSize());
-//		model.addAttribute("pageSize", pageSize);
-//		model.addAttribute("currentPage", page);
-//		model.addAttribute("currentSize", pageable.getPageSize());
-//		model.addAttribute("totalPages", pageCommentsByArticleId.getTotalPages());
 		model.addAttribute("article", article);
 		model.addAttribute("articleTags", article.getTags());
 		model.addAttribute("blog", blog);
@@ -151,7 +132,6 @@ public class ArticleController {
 		model.addAttribute("tags", tags);
 		model.addAttribute("blogCategories", blogCategories);
 		model.addAttribute("categories", categories);
-//		model.addAttribute("comments", comments);
 		model.addAttribute("commentDto", new CommentDto());
 		
 		
@@ -174,17 +154,9 @@ public class ArticleController {
 	@GetMapping("/articles/add")
 	public String showArticleForm(Model model) throws ResourceNotFoundException {
 		
-		List<String> tags = tagRepository
-				.findAll()
-				.stream()
-				.map(t -> t.getName())
-				.collect(Collectors.toList());
+		List<String> tags = tagService.getAllTagsName();
 		
-		List<String> categories = categoryService
-				.findAllCategories()
-				.stream()
-				.map(t -> t.getName())
-				.collect(Collectors.toList());
+		List<String> categories = categoryService.getAllCategoriesName();
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		
@@ -210,30 +182,20 @@ public class ArticleController {
 	
 	@Transactional
 	@PostMapping("/articles/add")
-	public String addArticle(//@PathVariable Long blogId, 
-			@Valid @ModelAttribute("articleDto") ArticleDto articleDto,   
-			BindingResult bindingResult, Model model,
-			Principal principal) throws ResourceNotFoundException {
+	public String addArticle(@Valid @ModelAttribute("articleDto") ArticleDto articleDto,   
+			BindingResult bindingResult, Model model, Principal principal) throws ResourceNotFoundException {
 
 		if (bindingResult.hasErrors()) {
-			List<String> tags = tagRepository
-					.findAll()
-					.stream()
-					.map(t -> t.getName())
-					.collect(Collectors.toList());
+			List<String> tags = tagService.getAllTagsName();
+			List<String> categories = categoryService.getAllCategoriesName();
 			
-			List<String> categories = categoryService
-					.findAllCategories()
-					.stream()
-					.map(t -> t.getName())
-					.collect(Collectors.toList());
-			
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();			
 			String username = auth.getName();
+			
 			authService.ifNotAnonymousUserGetIdToModel(model, username);
 			boolean hasBlog = isUserHasBlog(username);
 			boolean createButton = true;
+			
 			model.addAttribute("createButton", createButton);
 			model.addAttribute("loggedUser", username);
 			model.addAttribute("hasBlog", hasBlog);
@@ -241,93 +203,55 @@ public class ArticleController {
 			model.addAttribute("tags", tags);
 			model.addAttribute("categoryDto", new CategoryDto());
 			model.addAttribute("tagDto", new TagDto());
-		//	model.addAttribute("shops", shops);
-		//	model.addAttribute("currentUser", userService.findUserByEmail(email));
+
 			return "article-form";
 		}
 
-		UserEntity user = userRepository.findByUsername(principal.getName()).orElseThrow(
-				() -> new UsernameNotFoundException("User with username " + principal.getName() + " not found"));
+		UserEntity user = userRepository
+				.findByUsername(principal.getName())
+				.orElseThrow(() -> new UsernameNotFoundException("User with username " + principal.getName() + " not found"));
 		
 		Blog blog = blogRepository
 				.findByUser(user)
-				.orElseThrow(() -> new ResourceNotFoundException("Blog with username " + principal.getName() + " not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("User with username " + principal.getName() + " does not have a blog"));
 
-	//	Optional<Category> categoryOpt = categoryRepository.findByName(articleDto.getCategoryName());
-
-		// articleDto.getTags().stream()
-	//	System.out.println("title dto: " + articleDto.getTitle());
 		Article article = articleService.addArticle(articleDto);
-	
-//		if (!categoryOpt.isPresent()) {
-//			Category newCategory = new Category();
-//			newCategory.setName(articleDto.getCategoryName());
-//			categoryRepository.save(newCategory);
-//			article.setCategory(newCategory);
-//		} else {
-//			article.setCategory(categoryOpt.get());
-//		} 
-		Category category = categoryService
-				.findByName(articleDto.getCategoryName())
-				.orElseThrow(() -> new ResourceNotFoundException("Category with name " + articleDto.getCategoryName() + " not found"));
-	//	 article.setTags(articleDto.getTagsDto());
-		article.setCategory(category);
-		Set<Tag> tags = fetchTagsByNames(articleDto.getTagsDto());
-		article.setTags(tags);
-		// System.out.println("tags size: " + tags.size());
-		// updateArticle(article, tags);
-		article.setTitle(articleDto.getTitle());
-		article.setContent(articleDto.getContent());
-		article.setSummary(articleDto.getSummary());
-		article.setCreatedAt(LocalDateTime.now());
-		//article.setCategory(null)
 		article.setBlog(blog);
 		article.setUser(user);
 		
-		// articleDto.getTags().forEach(t -> t.addArticle(article));
-		// article.setTags(articleDto.getTags());
-
 		return "redirect:/articles/" + article.getId() + "/image/add";
 	}
 	
 	@GetMapping("/articles/{articleId}/update")
 	public String showUpdateArticleForm(@PathVariable Long articleId, Model model) throws ResourceNotFoundException {
-//		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//		String username = auth.getName();
-		
-//		UserEntity user = userRepository.findByUsername(username).orElseThrow(
-//				() -> new UsernameNotFoundException("User with username " + username + " not found"));
-		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String loggedUserUsername = auth.getName();
 		Article article = articleService
 				.getArticleById(articleId)
 				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + articleId + " not found"));
 		
-		ArticleDto articleDto = articleService.articleToArticleDto(article);
+		String articleOwnerUsername = article.getUser().getUsername();
+		
+		if (userSecurity.isOwner(articleOwnerUsername, loggedUserUsername)) {
+			ArticleDto articleDto = articleService.articleToArticleDto(article);
 			
-		List<String> tags = tagRepository
-				.findAll()
-				.stream()
-				.map(t -> t.getName())
-				.collect(Collectors.toList());
-		
-		List<String> categories = categoryService
-				.findAllCategories()
-				.stream()
-				.map(t -> t.getName())
-				.collect(Collectors.toList());
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String username = auth.getName();
-		boolean hasBlog = isUserHasBlog(username);
-		boolean createButton = true;
-		model.addAttribute("createButton", createButton);
-		model.addAttribute("loggedUser", username);
-		model.addAttribute("hasBlog", hasBlog);
-		model.addAttribute("articleId", articleId);
-		model.addAttribute("categories", categories);
-		model.addAttribute("tags", tags);
-		model.addAttribute("articleDto", articleDto);
-		
+			List<String> tags = tagService.getAllTagsName();
+			
+			List<String> categories = categoryService.getAllCategoriesName();
+			
+			boolean hasBlog = isUserHasBlog(loggedUserUsername);
+			boolean createButton = true;
+			model.addAttribute("createButton", createButton);
+			model.addAttribute("loggedUser", loggedUserUsername);
+			model.addAttribute("hasBlog", hasBlog);
+			model.addAttribute("articleId", articleId);
+			model.addAttribute("categories", categories);
+			model.addAttribute("tags", tags);
+			model.addAttribute("articleDto", articleDto);
+		} else {
+			throw new ForbiddenException("You don't have permission to do it.");
+		}
+			
 		return "article-update-form";
 	}
 	
@@ -339,17 +263,9 @@ public class ArticleController {
 			Principal principal) throws ResourceNotFoundException {
 
 		if (bindingResult.hasErrors()) {
-			List<String> tags = tagRepository
-					.findAll()
-					.stream()
-					.map(t -> t.getName())
-					.collect(Collectors.toList());
-			
-			List<String> categories = categoryService
-					.findAllCategories()
-					.stream()
-					.map(t -> t.getName())
-					.collect(Collectors.toList());
+			List<String> tags = tagService.getAllTagsName();
+								
+			List<String> categories = categoryService.getAllCategoriesName();
 			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			String username = auth.getName();
@@ -363,23 +279,9 @@ public class ArticleController {
 
 			return "article-update-form";
 		}
-		
-		Article article = articleService.getArticleById(articleId)
-				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + articleId + " not found"));;
-		
-		Category category = categoryService
-				.findByName(articleDto.getCategoryName())
-				.orElseThrow(() -> new ResourceNotFoundException("Category with name " + articleDto.getCategoryName() + " not found"));
+		articleService.updateArticle(articleId, articleDto);
 
-		Set<Tag> tags = fetchTagsByNames(articleDto.getTagsDto());
-		
-		article.setCategory(category);
-		article.setTags(tags);
-		article.setSummary(articleDto.getSummary());
-		article.setTitle(articleDto.getTitle());
-		article.setContent(articleDto.getContent());
-
-		return "redirect:/articles/" + article.getId();
+		return "redirect:/articles/" + articleId;
 	}
 	
 	@GetMapping("/articles/{articleId}/delete")
@@ -400,13 +302,6 @@ public class ArticleController {
 		 
 		return "redirect:/blogs/" + article.getBlog().getId();
 	}
-
-	private Set<Tag> fetchTagsByNames(Set<String> names) {
-		return names.stream().map(name -> {
-			tagService.addTag(name);
-			return tagRepository.findTagByName(name).orElseThrow();
-		}).collect(Collectors.toSet());
-	}
 	
 	@GetMapping("/articles/{id}/image/add")
 	public String showImageForm(@PathVariable Long id, Model model) throws ResourceNotFoundException {
@@ -420,7 +315,6 @@ public class ArticleController {
 		model.addAttribute("loggedUser", username);
 		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("article", article);
-		// model.addAttribute("imageFileDto", new ImageFileDto());
 
 		return "image-article-form";
 	}
@@ -431,13 +325,15 @@ public class ArticleController {
 			throws ResourceNotFoundException, IOException {
 		Article article = articleService.getArticleById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + id + " not found"));
-		ImageFile imageFile = ImageFile.builder().file(file.getBytes()).filename(file.getOriginalFilename())
-				.contentType(file.getContentType()).createdAt(LocalDate.now()).fileLength(file.getSize()).build();
+		ImageFile imageFile = ImageFile
+				.builder()
+				.file(file.getBytes())
+				.filename(file.getOriginalFilename())
+				.contentType(file.getContentType()).createdAt(LocalDate.now())
+				.fileLength(file.getSize()).build();
 		imageFileService.saveImageFile(imageFile);
 		article.setImage(imageFile);
 
-		// model.addAttribute("blog", blog);
-		// model.addAttribute("imageFileDto", new ImageFileDto());
 
 		return "redirect:/blogs/" + article.getBlog().getId();
 	}

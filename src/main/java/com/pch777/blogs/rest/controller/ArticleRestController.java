@@ -86,31 +86,23 @@ public class ArticleRestController {
 			article.setCategory(categoryOpt.get());
 		}
 
-		// article.setTags(articleDto.getTags());
 
 		Set<Tag> tags = fetchTagsByNames(articleDto.getTagsDto());
 		article.setTags(tags);
-		// System.out.println("tags size: " + tags.size());
-		// updateArticle(article, tags);
+
 		article.setBlog(blog);
 		article.setUser(user);
-		
-		// articleDto.getTags().forEach(t -> t.addArticle(article));
-		// article.setTags(articleDto.getTags());
+
 		return ResponseEntity.ok(article);
 	}
 
 	private Set<Tag> fetchTagsByNames(Set<String> names) {
 		return names.stream().map(name -> {
 			tagService.addTag(name);
-			return tagRepository.findTagByName(name).orElseThrow();
+			return tagRepository.findTagByName(name).get();
 		}).collect(Collectors.toSet());
 	}
 
-/*	private void updateArticle(Article article, Set<Tag> tags) {
-		article.removeTags();
-		tags.forEach(article::addTag);
-	} */
 
 	@DeleteMapping("/articles/{articleId}")
 	public void deleteArticle(@PathVariable Long articleId) {

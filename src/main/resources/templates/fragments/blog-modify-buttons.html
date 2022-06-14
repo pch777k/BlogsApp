@@ -1,0 +1,14 @@
+<div th:fragment="blog-modify-buttons">
+
+	<!-- Blog modify -->
+	<div class="mb-4">
+		<a th:if="${blog.user.username.equals(loggedUser)}" sec:authorize="isAuthenticated()"
+			class="btn btn-sm btn-outline-secondary" role="button"
+			th:href="@{/blogs/{blogId}/update (blogId=${blog.id})}">update blog</a>
+		<a th:if="${blog.user.username.equals(loggedUser)}" sec:authorize="isAuthenticated()"
+			class="btn btn-sm btn-outline-secondary" role="button"
+			th:href="@{/blogs/{blogId}/image/add (blogId=${blog.id})}">change image</a>
+	</div>
+	<!-- Blog modify -->
+
+</div>

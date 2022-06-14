@@ -3,9 +3,11 @@ package com.pch777.blogs.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -32,20 +34,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 			.csrf().disable()
 			.authorizeRequests()
-				.antMatchers("/api/auth", "/blogs/**", "/index", "/blog", "/test", "/articles/*/image").permitAll()
-				.antMatchers(HttpMethod.GET, "/*").permitAll()
-				.antMatchers(HttpMethod.GET, "/articles/*").permitAll()
+				.antMatchers("/api/auth").permitAll()
+				.antMatchers(HttpMethod.GET, "/*", "/index", "/blogs/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/articles/*", "/articles/*/image").permitAll()
 				.antMatchers(HttpMethod.GET, "/categories/*").permitAll()
 				.antMatchers(HttpMethod.GET, "/tags/*").permitAll()
-				.antMatchers("/register", "/process_register", "/login","/users/*/image").permitAll()
-				// .antMatchers("/role").hasRole("ADMIN")
+				.antMatchers("/register", "/process_register", "/login", "/users/*/image").permitAll()
 			.anyRequest().authenticated()
 			.and()
 			.formLogin()
 				.loginPage("/login")
 				.usernameParameter("username")
 				.passwordParameter("password")
-				.defaultSuccessUrl("/index").permitAll()
+				.defaultSuccessUrl("/").permitAll()
 			.and().logout()
 				.logoutSuccessUrl("/").permitAll();
 		http.sessionManagement()
@@ -65,6 +66,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.authenticationProvider(authenticationProvider());
+	}
+	
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+	return authenticationConfiguration.getAuthenticationManager();
 	}
 
 	@Bean

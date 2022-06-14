@@ -1,0 +1,15 @@
+<div th:fragment="top-categories">
+
+	<!-- Top categories -->
+	<div>
+		<h4 class="mt-4 mb-3 text-center">Top categories</h4>
+		<ol class="list-unstyled">
+			<li th:each="topCategory: ${topFourCategories}">
+				<a class="btn btn-sm btn-outline-info btn-block mb-1" th:href="@{'/categories/' + ${topCategory.name}}"
+					th:text="${#strings.toUpperCase(topCategory.name)}">category name</a>
+			</li>
+		</ol>
+	</div>
+	<!-- Top categories -->
+
+</div>

@@ -14,8 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ImageFileDto {
-	//@ImageContentType
-	//@FileSize
+
 	private MultipartFile fileImage;
 }
 

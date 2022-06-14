@@ -1,0 +1,35 @@
+<div th:fragment="summary">
+
+	<!-- Summary -->
+	<div class="row g-0">
+		<div class="col-6 mt-3 mb-2">
+			<div class="border link-decoration-none rounded text-info text-center py-3 d-block">
+				<h6 class="m-0" th:text="${totalBlogs}">total blogs</h6>
+				<span class="small">Blogs</span>
+			</div>
+		</div>
+		<div class="col-6 mt-3 mb-2">
+			<div class="border link-decoration-none text-info rounded text-center py-3 d-block">
+				<h6 class="m-0" th:text="${totalArticles}">total articles</h6>
+				<span class="small">Articles</span>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-0">
+		<div class="col-6">
+			<div class="border link-decoration-none text-info rounded text-center py-3 d-block">
+				<h6 class="m-0" th:text="${totalUsers}">total users</h6>
+				<span class="small">Users</span>
+			</div>
+		</div>
+		<div class="col-6">
+			<div class="border link-decoration-none text-info rounded text-center py-3 d-block">
+				<h6 class="m-0" th:text="${totalComments}">total comments</h6>
+				<span class="small">Comments</span>
+			</div>
+		</div>
+	</div>
+	<!-- Summary -->
+
+</div>

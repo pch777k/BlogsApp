@@ -5,8 +5,6 @@
 		<div class="row flex-nowrap justify-content-between align-items-center">
 			<div class="col-4 pt-1">
 
-
-
 				<button th:if="${createButton}" sec:authorize="isAuthenticated()"
 					class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
 					data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -36,18 +34,7 @@
 				<a class="blog-header-logo text-dark" th:href="@{/}">Blogs</a>
 			</div>
 			<div class="col-5 col-md-4 d-flex justify-content-end align-items-center">
-				<!--			<div class="dropdown">-->
-				<!--      <a href="#" id="imageDropdown" data-toggle="dropdown">-->
-				<!--        <img class="avatar avatar-md rounded-circle float-start me-3" width="40" height="40" src="img/nature01.jpg">-->
-				<!--      </a>-->
-				<!--      <ul class="dropdown-menu" role="menu" aria-labelledby="imageDropdown">-->
-				<!--        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Menu item 1</a></li>-->
-				<!--        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Menu item 2</a></li>-->
-				<!--        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Menu item 3</a></li>-->
-				<!--        <li role="presentation" class="divider"></li>-->
-				<!--        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Menu item 4</a></li>-->
-				<!--      </ul>-->
-				<!--    </div>-->
+
 				<div sec:authorize="isAuthenticated()" class="dropdown">
 					<a class="nav-link text-secondary dropdown-toggle" data-toggle="dropdown" href="#" role="button"
 						aria-haspopup="true" aria-expanded="false">
@@ -56,11 +43,6 @@
 					</a>
 					<div class="dropdown-menu">
 						<a class="dropdown-item" th:href="@{'/users/' + ${loggedUserId} + '/image/add'}">Change avatar</a>
-<!--						<a class="dropdown-item" th:href="@{'/users/' + ${userId} + '/update'}">Update data</a>-->
-<!--						-->
-<!--						<div class="dropdown-divider"></div>-->
-<!--						<a class="dropdown-item" href="#">Articles</a>-->
-<!--						<a class="dropdown-item" href="#">Comments</a>-->
 					</div>
 				</div>
 				<a class="btn btn-sm btn-outline-secondary" th:href="@{/login}" sec:authorize="!isAuthenticated()"

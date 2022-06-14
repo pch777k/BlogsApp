@@ -2,46 +2,40 @@ package com.pch777.blogs.generator;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.pch777.blogs.model.Comment;
 
-import lombok.AllArgsConstructor;
-
-@AllArgsConstructor
 @Service
 public class CommentDataGenerator {
 
 	private final GeneratorMethods generatorMethods;
-	
-	private static final String COMMENTS_FILE_PATH = "comments";
-	
+	private final String commentsFilePath;	
     private List<String> comments;
+     
+    public CommentDataGenerator(GeneratorMethods generatorMethods,  
+    		@Value("${commentsFilePath}") String commentsFilePath,
+			List<String> comments) {
+		this.generatorMethods = generatorMethods;
+		this.commentsFilePath = commentsFilePath;
+		this.comments = comments;
+	}
 
-    private final Random random = new Random();    
-	
-    public Comment generateComment() throws IOException {
+	public Comment generateComment() throws IOException {
     	Comment comment = new Comment();
         comment.setContent(getRandomCommentContent());
         return comment;
     }  
     
-    private String getRandomCommentContent() {
-        return getRandom(getCommentContents());
+    private String getRandomCommentContent() throws IOException {
+        return generatorMethods.getRandomItemFromList(getCommentContents());
     }
-     
-    private String getRandom(List<String> elements) {
- 
-        return elements.get(
-                random.nextInt(
-                        elements.size()));
-    }
-    
-	private List<String> getCommentContents() {
+        
+	private List<String> getCommentContents() throws IOException {
         if (comments.isEmpty()) {
-            comments = generatorMethods.loadLines(COMMENTS_FILE_PATH);
+            comments = generatorMethods.loadLines(commentsFilePath);
         }
         return comments;
     }

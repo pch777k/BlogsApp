@@ -20,7 +20,9 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 @Setter
 @Getter
 @NoArgsConstructor
@@ -48,10 +50,6 @@ public class UserEntity {
 	@ManyToOne(cascade = {CascadeType.MERGE})
 	@JoinColumn(name = "image_id")
 	private ImageFile image;
-	
-//	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-//    @PrimaryKeyJoinColumn
-//	private Blog blog;
 	
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "user_id")

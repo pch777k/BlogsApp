@@ -1,0 +1,28 @@
+<div th:fragment="recent-articles">
+
+	<!-- Recent articles -->
+	<div class="row">
+
+		<div class="col-12 mb-4">
+			<h4 class="mt-4 mb-2 text-center blog-header-sidebar">Recent articles</h4>
+
+			<div th:each="art : ${latestArticles}" class="card border-0 mb-1">
+				<div class="row ">
+					<div class="col-12 ">
+						<a class="category-header text-info" th:href="@{'/categories/' + ${art.category.name}}"
+							th:text="${#strings.toUpperCase(art.category.name)}"></a>
+						<h6><a th:href="@{'/articles/' + ${art.id}}" th:text="${art.title}"
+								class="btn-link stretched-link link-decoration-none text-dark fw-bold">Five
+								unbelievable facts about money.</a></h6>
+						<div class="small pb-1 mt-1 border-bottom"
+							th:text="${#temporals.format(art.createdAt, 'dd-MM-yyyy')}">Nov 29, 2022
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- Recent articles -->
+
+</div>

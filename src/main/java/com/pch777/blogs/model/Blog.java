@@ -36,7 +36,7 @@ public class Blog {
 	
 	private String description;
 	
-	@ManyToOne(cascade = {CascadeType.MERGE})
+	@ManyToOne(cascade = {CascadeType.ALL})
 	@JoinColumn(name = "image_id")
 	private ImageFile image;
 	

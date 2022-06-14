@@ -1,14 +1,11 @@
 package com.pch777.blogs.service;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.util.ResourceUtils;
 
 import com.pch777.blogs.dto.RegisterUserDto;
 import com.pch777.blogs.exception.ResourceNotFoundException;
@@ -25,10 +22,8 @@ public class AuthService {
 	private final UserEntityRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final ImageFileService imageFileService;
-	private static final String DEFAULT_IMAGE_FILENAME = "default-avatar";
-	private static final long DEFAULT_IMAGE_ID = 1L;
-	
-	
+	private final long DEFAULT_IMAGE_ID = 1L;
+		
 	public UserEntity signup(RegisterUserDto userDto) throws IOException, ResourceNotFoundException {
 		UserEntity user = new UserEntity();
 		user.setFirstName(userDto.getFirstName());
@@ -51,8 +46,7 @@ public class AuthService {
 			model.addAttribute("loggedUserId", loggedUser.getId());
 		}
 	}
-    
-	
+    	
 	public Boolean isUsernameExists(String username) {
 		return userRepository.existsByUsername(username);
 	}
