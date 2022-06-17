@@ -34,6 +34,7 @@ public class TagService {
 		return tagRepository.findAll()
 				.stream()
 				.map(t -> t.getName())
+				.sorted()
 				.collect(Collectors.toList());
 	}
 	

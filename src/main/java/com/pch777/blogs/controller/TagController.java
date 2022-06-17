@@ -46,15 +46,10 @@ public class TagController {
 	private final int numberOfLatestArticles;
 	private final int numberOfTopCategories;
 	private final int numberOfTopTags;
-	
-	public TagController(TagService tagService, 
-			ArticleService articleService, 
-			CategoryService categoryService,
-			BlogRepository blogRepository, 
-			UserEntityRepository userRepository, 
-			CommentService commentService,
-			AuthService authService, 
-			@Value("${numberOfLatestArticles}") int numberOfLatestArticles,
+
+	public TagController(TagService tagService, ArticleService articleService, CategoryService categoryService,
+			BlogRepository blogRepository, UserEntityRepository userRepository, CommentService commentService,
+			AuthService authService, @Value("${numberOfLatestArticles}") int numberOfLatestArticles,
 			@Value("${numberOfTopCategories}") int numberOfTopCategories,
 			@Value("${numberOfTopTags}") int numberOfTopTags) {
 		this.tagService = tagService;
@@ -68,17 +63,26 @@ public class TagController {
 		this.numberOfTopCategories = numberOfTopCategories;
 		this.numberOfTopTags = numberOfTopTags;
 	}
-	
+
 	@GetMapping("/tags/add")
-	public String showAddTagForm(Model model) {
+	public String showAddTagForm(Model model) throws ResourceNotFoundException {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		String username = auth.getName();
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
 		model.addAttribute("tagDto", new TagDto());
 
 		return "tag-form";
 	}
 
 	@PostMapping("/tags/add")
-	public String addTag(@Valid @ModelAttribute("tagDto") TagDto tagDto, BindingResult bindingResult) {
+	public String addTag(@Valid @ModelAttribute("tagDto") TagDto tagDto, 
+			BindingResult bindingResult, Model model) throws ResourceNotFoundException {
 		if (bindingResult.hasErrors()) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+			String username = auth.getName();
+			authService.ifNotAnonymousUserGetIdToModel(model, username);
 			return "tag-form";
 		}
 		tagService.addTag(tagDto.getName());
@@ -86,39 +90,32 @@ public class TagController {
 	}
 
 	@GetMapping("tags/{tagName}")
-	public String getArticlesByCategoryName(@PathVariable String tagName, 
-			@RequestParam(defaultValue = "") String keyword, Model model)
-			throws ResourceNotFoundException {
+	public String getArticlesByCategoryName(@PathVariable String tagName,
+			@RequestParam(defaultValue = "") String keyword, Model model) throws ResourceNotFoundException {
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		
+
 		String username = auth.getName();
 		authService.ifNotAnonymousUserGetIdToModel(model, username);
 
-		List<Article> articles = articleService
-				.getAllArticles()
-				.stream()
-				.filter(a -> a.getTitle()
-						.toLowerCase()
-						.contains(keyword.toLowerCase()))
-				.collect(Collectors.toList());
-		
-		Tag tag = tagService
-				.findTagByName(tagName)
+		List<Article> articles = articleService.getAllArticles().stream()
+				.filter(a -> a.getTitle().toLowerCase().contains(keyword.toLowerCase())).collect(Collectors.toList());
+
+		Tag tag = tagService.findTagByName(tagName)
 				.orElseThrow(() -> new ResourceNotFoundException("Tag with name " + tagName + " not found"));
-		
+
 		List<Article> articlesByTag = getArticlesByTagName(tag, articles);
-		
+
 		List<Article> latestFiveArticles = articleService.getLatestArticles(numberOfLatestArticles);
 
 		List<Category> topCategories = categoryService.findTopCategories(numberOfTopCategories);
-		
+
 		List<Category> categories = categoryService.findAllCategoriesSortedByName();
 
 		List<Tag> tags = tagService.findTopTags(numberOfTopTags);
 
 		List<Blog> blogs = blogRepository.findAll();
-		
+
 		int totalBlogs = blogs.size();
 		int totalArticles = articleService.getAllArticles().size();
 		int totalUsers = userRepository.findAll().size();
@@ -141,9 +138,6 @@ public class TagController {
 
 	private List<Article> getArticlesByTagName(Tag tag, List<Article> articles) {
 
-		return articles
-				.stream()
-				.filter(a -> a.getTags().contains(tag))
-				.collect(Collectors.toList());
+		return articles.stream().filter(a -> a.getTags().contains(tag)).collect(Collectors.toList());
 	}
 }

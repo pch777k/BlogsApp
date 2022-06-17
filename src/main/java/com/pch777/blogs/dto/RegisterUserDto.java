@@ -17,18 +17,18 @@ import lombok.Setter;
 @Setter
 public class RegisterUserDto {
 	
-	@NotBlank
+	@NotBlank(message = "First name may not be blank")
 	private String firstName;
 	
-	@NotBlank
+	@NotBlank(message = "Last name may not be blank")
 	private String lastName;
 	
-	@NotBlank
-	@Size(min = 3, max = 30)
+	@NotBlank(message = "Username may not be blank")
+	@Size(min = 3, max = 30, message = "Username cannot be less than 3 characters and more than 30 characters long")
 	private String username;
 	
-	@NotBlank
-	@Size(min = 3, max = 30)
+	@NotBlank(message = "Password may not be blank")
+	@Size(min = 3, max = 30, message = "Password cannot be less than 3 characters and more than 30 characters long")
 	private String password;
 	
 	private Set<String> roles = new HashSet<>();

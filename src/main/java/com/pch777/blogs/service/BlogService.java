@@ -30,7 +30,6 @@ public class BlogService {
 		UserEntity user = userRepository
 				.findByUsername(auth.getName())
 				.orElseThrow(() -> new UsernameNotFoundException("User with username " + auth.getName() + " not found."));
-		System.out.println("user: " + auth.getName());
 		Optional<Blog> blog = blogRepository.findByUser(user);
 		return blog.isPresent();
 	}

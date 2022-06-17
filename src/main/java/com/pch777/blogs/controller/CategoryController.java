@@ -71,7 +71,11 @@ public class CategoryController {
 	
 
 	@GetMapping("/categories/add")
-	public String showAddTagForm(Model model) {
+	public String showAddTagForm(Model model) throws ResourceNotFoundException {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		String username = auth.getName();
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
 		model.addAttribute("categoryDto", new CategoryDto());
 
 		return "category-form";
@@ -79,9 +83,13 @@ public class CategoryController {
 
 	@PostMapping("/categories/add")
 	public String addCategory(@Valid @ModelAttribute("categoryDto") CategoryDto categoryDto,
-			BindingResult bindingResult, Model model) {
+			BindingResult bindingResult, Model model) throws ResourceNotFoundException {
 		
-		if (bindingResult.hasErrors()) {	
+		if (bindingResult.hasErrors()) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+			String username = auth.getName();
+			authService.ifNotAnonymousUserGetIdToModel(model, username);
 			return "category-form";
 		}
 		categoryService.addCategory(categoryDto.getName());

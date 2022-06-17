@@ -33,6 +33,7 @@ public class CategoryService {
 		return categoryRepository.findAll()
 				.stream()
 				.map(t -> t.getName())
+				.sorted()
 				.collect(Collectors.toList());
 	}
 	
