@@ -48,7 +48,7 @@ public class AuthService {
 	}
     	
 	public Boolean isUsernameExists(String username) {
-		return userRepository.existsByUsername(username);
+		return userRepository.existsByUsernameIgnoreCase(username);
 	}
 	
 	public Optional<UserEntity> findByUsername(String username) {
@@ -60,7 +60,7 @@ public class AuthService {
 	}
 
 	public boolean isUserPresent(String username) {
-		return userRepository.existsByUsername(username);
+		return userRepository.existsByUsernameIgnoreCase(username);
 	}
 
 	public RegisterUserDto userToRegisterDto(UserEntity user) {

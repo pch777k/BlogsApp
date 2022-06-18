@@ -61,7 +61,7 @@ public class AuthController {
 
 		if (authService.isUsernameExists(userDto.getUsername())) {
 			model.addAttribute("exist", true);
-			return "signup_form";
+			return "signup-form";
 		}
 		Set<String> roles = new HashSet<>();
 		roles.add("USER");

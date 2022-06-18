@@ -8,7 +8,7 @@
 		<li class="nav-item dropdown">
 			<a class="nav-link text-secondary dropdown-toggle" data-toggle="dropdown" href="#" role="button"
 				aria-haspopup="true" aria-expanded="false">Blogs</a>
-			<div class="dropdown-menu">
+			<div class="dropdown-menu columns">
 				<th:block th:each="blog: ${blogs}">
 					<a class="dropdown-item text-secondary" th:href="@{'/blogs/' + ${blog.id}}"
 						th:text="${blog.name}">blog name</a>
@@ -18,10 +18,20 @@
 		<li class="nav-item dropdown">
 			<a class="nav-link text-secondary dropdown-toggle" data-toggle="dropdown" href="#" role="button"
 				aria-haspopup="true" aria-expanded="false">Categories</a>
-			<div class="dropdown-menu">
+			<div class="dropdown-menu columns">
 				<th:block th:each="categ: ${categories}">
 					<a class="dropdown-item text-secondary" th:href="@{'/categories/' + ${categ.name}}"
 						th:text="${#strings.toUpperCase(categ.name)}">category name</a>
+				</th:block>
+			</div>
+		</li>
+		<li class="nav-item dropdown">
+			<a class="nav-link text-secondary dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+				aria-haspopup="true" aria-expanded="false">Tags</a>
+			<div class="dropdown-menu columns">
+				<th:block th:each="tag: ${tags}">
+					<a class="dropdown-item text-secondary" th:href="@{'/tags/' + ${tag.name}}"
+						th:text="${#strings.toLowerCase(tag.name)}">tag name</a>
 				</th:block>
 			</div>
 		</li>

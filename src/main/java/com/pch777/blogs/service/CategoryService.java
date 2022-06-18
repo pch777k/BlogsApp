@@ -18,7 +18,7 @@ public class CategoryService {
 	private final CategoryRepository categoryRepository;
 	
 	public void addCategory(String name) {
-		if(!categoryRepository.existsByName(name)) {
+		if(!categoryRepository.existsByNameIgnoreCase(name)) {
 			Category category = new Category();
 			category.setName(name);
 			categoryRepository.save(category);
@@ -27,6 +27,10 @@ public class CategoryService {
 	
 	public List<Category> findAllCategories() {
 		return categoryRepository.findAll();
+	}
+	
+	public boolean categoryExists(String categoryName) {
+		return categoryRepository.existsByNameIgnoreCase(categoryName);
 	}
 	
 	public List<String> getAllCategoriesName() {

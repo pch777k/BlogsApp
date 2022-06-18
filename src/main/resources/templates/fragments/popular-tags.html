@@ -4,7 +4,7 @@
 	<div>
 		<h4 class="mt-4 mb-3 text-center">Popular tags</h4>
 		<div class="row">
-			<div th:each="tag: ${tags}" class="col-6 mb-1">
+			<div th:each="tag: ${topSixTags}" class="col-6 mb-1">
 				<a class="btn btn-sm btn-info btn-block" th:href="@{'/tags/' + ${tag.name}}" th:text="${tag.name}"></a>
 			</div>
 		</div>

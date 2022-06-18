@@ -10,7 +10,8 @@ import com.pch777.blogs.model.UserEntity;
 
 public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
 	Optional<UserEntity> findByUsername(String username);
-	Boolean existsByUsername(String username);
+	
+	Boolean existsByUsernameIgnoreCase(String username);
 	
 	@Override
 	@Query("select distinct u "

@@ -10,7 +10,8 @@ import com.pch777.blogs.model.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 	Optional<Category> findByName(String name);
-	Boolean existsByName(String name);
+	
+	Boolean existsByNameIgnoreCase(String name);
 	
 	@Override
 	@Query("select distinct c from Category c left join fetch c.articles")

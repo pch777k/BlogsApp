@@ -116,6 +116,8 @@ public class BlogController {
 		List<Category> categories = categoryService.findAllCategoriesSortedByName();
 
 		List<Tag> topSixTags = tagService.findTopTags(numberOfTopTags);
+		
+		List<Tag> tags = tagService.findAllTagsSorted();
 
 		List<Blog> blogs = blogRepository.findAll();
 
@@ -159,7 +161,8 @@ public class BlogController {
 		model.addAttribute("totalBlogs", totalBlogs);
 		model.addAttribute("categories", categories);
 		model.addAttribute("topFourCategories", topFourCategories);
-		model.addAttribute("tags", topSixTags);
+		model.addAttribute("topSixTags", topSixTags);
+		model.addAttribute("tags", tags);		
 		model.addAttribute("totalArticles", totalArticles);
 		model.addAttribute("totalUsers", totalUsers);
 		model.addAttribute("totalComments", totalComments);
@@ -198,7 +201,9 @@ public class BlogController {
 		Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
 		Page<Article> pageArticles = articleService.getAllArticlesByBlogId(pageable, blogId, keyword);
 
-		List<Tag> tags = getTagsByBlogId(blogId);
+		List<Tag> blogTags = getTagsByBlogId(blogId);
+		
+		List<Tag> tags = tagService.findAllTagsSorted();
 
 		List<Category> blogCategories = getCategoriesByBlogId(blogId);
 
@@ -224,7 +229,8 @@ public class BlogController {
 		model.addAttribute("pageArticles", pageArticles);
 		model.addAttribute("blog", blog);
 		model.addAttribute("blogs", blogs);
-		model.addAttribute("tags", tags);
+		model.addAttribute("blogTags", blogTags);
+		model.addAttribute("tags", tags);	
 		model.addAttribute("categories", categories);
 		model.addAttribute("blogCategories", blogCategories);
 
@@ -247,7 +253,9 @@ public class BlogController {
 				.filter(a -> a.getCreatedAt().getYear() == year)
 				.sorted(Comparator.comparing(Article::getCreatedAt).reversed()).collect(Collectors.toList());
 
-		List<Tag> tags = getTagsByBlogId(blogId);
+		List<Tag> blogTags = getTagsByBlogId(blogId);
+		
+		List<Tag> tags = tagService.findAllTagsSorted();
 
 		List<Category> blogCategories = getCategoriesByBlogId(blogId);
 
@@ -269,9 +277,9 @@ public class BlogController {
 		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("monthAndYear", monthAndYear);
 		model.addAttribute("articles", articlesByMonth);
-
 		model.addAttribute("blog", blog);
 		model.addAttribute("blogs", blogs);
+		model.addAttribute("blogTags", blogTags);
 		model.addAttribute("tags", tags);
 		model.addAttribute("categories", categories);
 		model.addAttribute("blogCategories", blogCategories);
@@ -306,7 +314,9 @@ public class BlogController {
 		Page<Article> pageArticlesByCategory = articleService
 				.getArticlesByBlogIdAndByCategory(pageable, blogId, categoryName.toLowerCase());
 
-		List<Tag> tags = getTagsByBlogId(blogId);
+		List<Tag> blogTags = getTagsByBlogId(blogId);
+		
+		List<Tag> tags = tagService.findAllTagsSorted();
 
 		List<Category> blogCategories = getCategoriesByBlogId(blogId);
 
@@ -331,6 +341,7 @@ public class BlogController {
 		model.addAttribute("pageArticles", pageArticlesByCategory);
 		model.addAttribute("blog", blog);
 		model.addAttribute("blogs", blogs);
+		model.addAttribute("blogTags", blogTags);
 		model.addAttribute("tags", tags);
 		model.addAttribute("categories", categories);
 		model.addAttribute("blogCategories", blogCategories);
@@ -354,7 +365,9 @@ public class BlogController {
 
 		List<Article> articlesByTag = getArticlesByTagName(tag, articles);
 
-		List<Tag> tags = getTagsByBlogId(blogId);
+		List<Tag> blogTags = getTagsByBlogId(blogId);
+		
+		List<Tag> tags = tagService.findAllTagsSorted();
 
 		List<Category> blogCategories = getCategoriesByBlogId(blogId);
 		List<Category> categories = categoryService.findAllCategoriesSortedByName();
@@ -373,6 +386,7 @@ public class BlogController {
 		model.addAttribute("articles", articlesByTag);
 		model.addAttribute("blog", blog);
 		model.addAttribute("blogs", blogs);
+		model.addAttribute("blogTags", blogTags);
 		model.addAttribute("tags", tags);
 		model.addAttribute("categories", categories);
 		model.addAttribute("blogCategories", blogCategories);

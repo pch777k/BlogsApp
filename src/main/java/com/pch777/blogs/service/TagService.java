@@ -1,5 +1,6 @@
 package com.pch777.blogs.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class TagService {
 	private final TagRepository tagRepository;
 	
 	public void addTag(String name) {
-		if(!tagRepository.existsByName(name)) {
+		if(!tagRepository.existsByNameIgnoreCase(name)) {
 			Tag tag = new Tag();
 			tag.setName(name);
 			tagRepository.save(tag);
@@ -28,6 +29,10 @@ public class TagService {
 	
 	public List<Tag> findAllTags() {
 		return tagRepository.findAll();
+	}
+	
+	public boolean tagExists(String tagName) {
+		return tagRepository.existsByNameIgnoreCase(tagName);
 	}
 	
 	public List<String> getAllTagsName() {
@@ -61,4 +66,12 @@ public class TagService {
 			return tagRepository.findTagByName(name).get();
 		}).collect(Collectors.toSet());
 	}
+
+	public List<Tag> findAllTagsSorted() {
+		return tagRepository.findAll()
+				.stream()
+				.sorted(Comparator.comparing(Tag::getName))
+				.collect(Collectors.toList());
+	}
+	
 }

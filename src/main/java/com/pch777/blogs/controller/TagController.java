@@ -85,6 +85,15 @@ public class TagController {
 			authService.ifNotAnonymousUserGetIdToModel(model, username);
 			return "tag-form";
 		}
+		
+		if (tagService.tagExists(tagDto.getName())) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+			String username = auth.getName();
+			authService.ifNotAnonymousUserGetIdToModel(model, username);
+			model.addAttribute("exist", true);
+			return "tag-form";
+		}
 		tagService.addTag(tagDto.getName());
 		return "redirect:/";
 	}
@@ -112,7 +121,9 @@ public class TagController {
 
 		List<Category> categories = categoryService.findAllCategoriesSortedByName();
 
-		List<Tag> tags = tagService.findTopTags(numberOfTopTags);
+		List<Tag> topSixTags = tagService.findTopTags(numberOfTopTags);
+		
+		List<Tag> tags = tagService.findAllTagsSorted();
 
 		List<Blog> blogs = blogRepository.findAll();
 
@@ -127,6 +138,7 @@ public class TagController {
 		model.addAttribute("blogs", blogs);
 		model.addAttribute("categories", categories);
 		model.addAttribute("topFourCategories", topCategories);
+		model.addAttribute("topSixTags", topSixTags);
 		model.addAttribute("tags", tags);
 		model.addAttribute("totalBlogs", totalBlogs);
 		model.addAttribute("totalArticles", totalArticles);

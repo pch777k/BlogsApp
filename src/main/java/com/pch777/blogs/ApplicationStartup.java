@@ -144,7 +144,7 @@ public class ApplicationStartup implements CommandLineRunner {
 				article.setUser(user);
 				Category category = categoryGenerator.generateCategory();
 				String categoryName = category.getName();
-				if (categoryRepository.existsByName(categoryName)) {
+				if (categoryRepository.existsByNameIgnoreCase(categoryName)) {
 
 					category = categoryRepository.findByName(categoryName).orElseThrow(
 							() -> new ResourceNotFoundException("Category with name " + categoryName + "not found"));
@@ -155,7 +155,7 @@ public class ApplicationStartup implements CommandLineRunner {
 				Set<String> tagNames = categoryGenerator.generateTagsByCategoryName(category.getName());
 
 				Set<Tag> tags = tagNames.stream().map(name -> {
-					if (tagRepository.existsByName(name)) {
+					if (tagRepository.existsByNameIgnoreCase(name)) {
 						return tagRepository.findTagByName(name).get();
 					}
 					return tagRepository.save(new Tag(name));

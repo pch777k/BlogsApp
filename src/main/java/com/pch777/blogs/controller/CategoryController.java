@@ -92,6 +92,15 @@ public class CategoryController {
 			authService.ifNotAnonymousUserGetIdToModel(model, username);
 			return "category-form";
 		}
+		if (categoryService.categoryExists(categoryDto.getName())) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+			String username = auth.getName();
+			authService.ifNotAnonymousUserGetIdToModel(model, username);
+			model.addAttribute("exist", true);
+			return "category-form";
+		}
+		
 		categoryService.addCategory(categoryDto.getName());
 		return "redirect:/";
 	}
@@ -120,7 +129,11 @@ public class CategoryController {
 		
 		List<Category> categories = categoryService.findAllCategoriesSortedByName();
 		
-		List<Tag> tags = tagService.findTopTags(numberOfTopTags);
+		List<Tag> topSixTags = tagService.findTopTags(numberOfTopTags);
+		
+		List<Tag> tags = tagService.findAllTagsSorted();
+		
+		
 		
 		List<Blog> blogs = blogRepository.findAll();
 		
@@ -136,6 +149,7 @@ public class CategoryController {
 		model.addAttribute("latestArticles", latestFiveArticles);
 		model.addAttribute("categories", categories);
 		model.addAttribute("topFourCategories", topCategories);
+		model.addAttribute("topSixTags", topSixTags);
 		model.addAttribute("tags", tags);
 		model.addAttribute("blogs", blogs);	
 		model.addAttribute("totalBlogs", totalBlogs);
