@@ -3,7 +3,7 @@
 	<!-- Blog tags -->
 	<div class="px-4 mb-3">
 		<h4 class="fst-italic">Blog tags</h4>
-		<th:block th:each="tag: ${tags}">
+		<th:block th:each="tag: ${blogTags}">
 			<a class="btn btn-secondary btn-sm mb-1" th:href="@{'/blogs/' + ${blog.id} + '/tag/' + ${tag.name}}"
 				role="button" th:text="${tag.name}">tag name</a>
 		</th:block>
