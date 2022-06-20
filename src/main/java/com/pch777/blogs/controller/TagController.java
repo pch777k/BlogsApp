@@ -66,10 +66,13 @@ public class TagController {
 
 	@GetMapping("/tags/add")
 	public String showAddTagForm(Model model) throws ResourceNotFoundException {
+		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 		String username = auth.getName();
-		authService.ifNotAnonymousUserGetIdToModel(model, username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);		
+		boolean hasBlog = authService.isUserHasBlog(username);
+
+		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("tagDto", new TagDto());
 
 		return "tag-form";
@@ -78,19 +81,26 @@ public class TagController {
 	@PostMapping("/tags/add")
 	public String addTag(@Valid @ModelAttribute("tagDto") TagDto tagDto, 
 			BindingResult bindingResult, Model model) throws ResourceNotFoundException {
+		
 		if (bindingResult.hasErrors()) {
+			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 			String username = auth.getName();
 			authService.ifNotAnonymousUserGetIdToModel(model, username);
+			boolean hasBlog = authService.isUserHasBlog(username);
+			
+			model.addAttribute("hasBlog", hasBlog);
 			return "tag-form";
 		}
 		
 		if (tagService.tagExists(tagDto.getName())) {
+			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 			String username = auth.getName();
 			authService.ifNotAnonymousUserGetIdToModel(model, username);
+			boolean hasBlog = authService.isUserHasBlog(username);
+			
+			model.addAttribute("hasBlog", hasBlog);
 			model.addAttribute("exist", true);
 			return "tag-form";
 		}
@@ -127,12 +137,15 @@ public class TagController {
 
 		List<Blog> blogs = blogRepository.findAll();
 
+		boolean hasBlog = authService.isUserHasBlog(username);
 		int totalBlogs = blogs.size();
 		int totalArticles = articleService.getAllArticles().size();
 		int totalUsers = userRepository.findAll().size();
 		int totalComments = commentService.getAllComments().size();
 		boolean createButton = true;
+			
 		model.addAttribute("createButton", createButton);
+		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("articles", articlesByTag);
 		model.addAttribute("latestArticles", latestFiveArticles);
 		model.addAttribute("blogs", blogs);
@@ -150,6 +163,9 @@ public class TagController {
 
 	private List<Article> getArticlesByTagName(Tag tag, List<Article> articles) {
 
-		return articles.stream().filter(a -> a.getTags().contains(tag)).collect(Collectors.toList());
+		return articles
+				.stream()
+				.filter(a -> a.getTags().contains(tag))
+				.collect(Collectors.toList());
 	}
 }

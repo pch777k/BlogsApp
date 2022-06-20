@@ -9,8 +9,10 @@ import org.springframework.ui.Model;
 
 import com.pch777.blogs.dto.RegisterUserDto;
 import com.pch777.blogs.exception.ResourceNotFoundException;
+import com.pch777.blogs.model.Blog;
 import com.pch777.blogs.model.ImageFile;
 import com.pch777.blogs.model.UserEntity;
+import com.pch777.blogs.repository.BlogRepository;
 import com.pch777.blogs.repository.UserEntityRepository;
 
 import lombok.AllArgsConstructor;
@@ -20,6 +22,7 @@ import lombok.AllArgsConstructor;
 public class AuthService {
 
 	private final UserEntityRepository userRepository;
+	private final BlogRepository blogRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final ImageFileService imageFileService;
 	private final long DEFAULT_IMAGE_ID = 1L;
@@ -39,12 +42,28 @@ public class AuthService {
 	}
 	
 	public void ifNotAnonymousUserGetIdToModel(Model model, String username) throws ResourceNotFoundException {
-		if(!username.equalsIgnoreCase("anonymousUser")) {
+		if (!username.equalsIgnoreCase("anonymousUser")) {
 			UserEntity loggedUser = userRepository
 					.findByUsername(username)
-					.orElseThrow(() -> new ResourceNotFoundException("User with username " + username + " not found"));
+					.orElseThrow(() -> new ResourceNotFoundException("User with username " + username + " not found."));
+			Optional<Blog> blog = blogRepository
+					.findAll()
+					.stream()
+					.filter(b -> b.getUser().getId() == loggedUser.getId())
+					.findFirst();
+			if(blog.isPresent()) {
+				model.addAttribute("loggedUserBlogId", blog.get().getId());
+			}
+			
 			model.addAttribute("loggedUserId", loggedUser.getId());
 		}
+	}
+	
+	public boolean isUserHasBlog(String username) {
+		return blogRepository
+				.findAll()
+				.stream()
+				.anyMatch(b -> b.getUser().getUsername().equals(username));
 	}
     	
 	public Boolean isUsernameExists(String username) {

@@ -72,10 +72,13 @@ public class CategoryController {
 
 	@GetMapping("/categories/add")
 	public String showAddTagForm(Model model) throws ResourceNotFoundException {
+		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 		String username = auth.getName();
 		authService.ifNotAnonymousUserGetIdToModel(model, username);
+		boolean hasBlog = authService.isUserHasBlog(username);
+		
+		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("categoryDto", new CategoryDto());
 
 		return "category-form";
@@ -86,18 +89,24 @@ public class CategoryController {
 			BindingResult bindingResult, Model model) throws ResourceNotFoundException {
 		
 		if (bindingResult.hasErrors()) {
+			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 			String username = auth.getName();
 			authService.ifNotAnonymousUserGetIdToModel(model, username);
+			boolean hasBlog = authService.isUserHasBlog(username);
+			
+			model.addAttribute("hasBlog", hasBlog);
 			return "category-form";
 		}
 		if (categoryService.categoryExists(categoryDto.getName())) {
+			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
 			String username = auth.getName();
 			authService.ifNotAnonymousUserGetIdToModel(model, username);
+			boolean hasBlog = authService.isUserHasBlog(username);
+			
 			model.addAttribute("exist", true);
+			model.addAttribute("hasBlog", hasBlog);
 			return "category-form";
 		}
 		
@@ -133,10 +142,9 @@ public class CategoryController {
 		
 		List<Tag> tags = tagService.findAllTagsSorted();
 		
-		
-		
 		List<Blog> blogs = blogRepository.findAll();
 		
+		boolean hasBlog = authService.isUserHasBlog(username);
 		int totalBlogs = blogs.size();
 		int totalArticles = articleService.getAllArticles().size();
 		int totalUsers = userRepository.findAll().size();
@@ -144,6 +152,7 @@ public class CategoryController {
 		boolean createButton = true;
 		
 		model.addAttribute("createButton", createButton);
+		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("articles", articlesByCategory);
 		model.addAttribute("categoryName", categoryName);
 		model.addAttribute("latestArticles", latestFiveArticles);

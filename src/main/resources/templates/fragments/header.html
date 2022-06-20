@@ -43,6 +43,12 @@
 					</a>
 					<div class="dropdown-menu">
 						<a class="dropdown-item" th:href="@{'/users/' + ${loggedUserId} + '/image/add'}">Change avatar</a>
+						<th:block th:if="${hasBlog}">
+						<a class="dropdown-item" th:href="@{'/blogs/' + ${loggedUserBlogId}}">My Blog</a>
+						</th:block>
+						<th:block th:unless="${hasBlog}">
+						<a class="dropdown-item" style="opacity: 0.5;">My Blog</a>
+						</th:block>
 					</div>
 				</div>
 				<a class="btn btn-sm btn-outline-secondary" th:href="@{/login}" sec:authorize="!isAuthenticated()"

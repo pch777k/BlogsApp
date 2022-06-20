@@ -5,7 +5,6 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -120,7 +119,7 @@ public class ArticleController {
 
 		model.addAttribute("monthAndYear", monthAndYear);
 	
-		boolean hasBlog = isUserHasBlog(username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 		boolean createButton = true;
 		model.addAttribute("createButton", createButton);
 		model.addAttribute("loggedUser", username);
@@ -163,7 +162,7 @@ public class ArticleController {
 		
 		String username = auth.getName();
 		authService.ifNotAnonymousUserGetIdToModel(model, username);
-		boolean hasBlog = isUserHasBlog(username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 		boolean createButton = true;
 		model.addAttribute("createButton", createButton);
 		model.addAttribute("loggedUser", username);
@@ -175,10 +174,6 @@ public class ArticleController {
 		model.addAttribute("tagDto", new TagDto());
 		
 		return "article-form";
-	}
-	
-	private boolean isUserHasBlog(String username) {
-		return blogRepository.findAll().stream().anyMatch(b -> b.getUser().getUsername().equals(username));
 	}
 	
 	@Transactional
@@ -194,7 +189,7 @@ public class ArticleController {
 			String username = auth.getName();
 			
 			authService.ifNotAnonymousUserGetIdToModel(model, username);
-			boolean hasBlog = isUserHasBlog(username);
+			boolean hasBlog = authService.isUserHasBlog(username);
 			boolean createButton = true;
 			
 			model.addAttribute("createButton", createButton);
@@ -239,8 +234,8 @@ public class ArticleController {
 			List<String> tags = tagService.getAllTagsName();
 			
 			List<String> categories = categoryService.getAllCategoriesName();
-			
-			boolean hasBlog = isUserHasBlog(loggedUserUsername);
+			authService.ifNotAnonymousUserGetIdToModel(model, loggedUserUsername);
+			boolean hasBlog = authService.isUserHasBlog(loggedUserUsername);
 			boolean createButton = true;
 			model.addAttribute("createButton", createButton);
 			model.addAttribute("loggedUser", loggedUserUsername);
@@ -270,7 +265,8 @@ public class ArticleController {
 			
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			String username = auth.getName();
-			boolean hasBlog = isUserHasBlog(username);
+			authService.ifNotAnonymousUserGetIdToModel(model, username);
+			boolean hasBlog = authService.isUserHasBlog(username);
 			
 			model.addAttribute("loggedUser", username);
 			model.addAttribute("hasBlog", hasBlog);
@@ -310,7 +306,8 @@ public class ArticleController {
 				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + id + " not found"));
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
-		boolean hasBlog = isUserHasBlog(username);
+		boolean hasBlog = authService.isUserHasBlog(username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
 		boolean createButton = false;
 		model.addAttribute("createButton", createButton);
 		model.addAttribute("loggedUser", username);

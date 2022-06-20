@@ -31,10 +31,12 @@
 				<div class="card mb-2">
 					<div class="card-body">
 						<span class="blog-form-tag-logo text-dark">Create blog</span>
-						<form th:action="@{/blogs/add}" th:object="${blogDto}" method="post"
-							enctype="multipart/form-data">
+						<form th:action="@{/blogs/add}" th:object="${blogDto}" method="post">
 							<div class="row justify-content-center">
-								<div class="form-group text-left my-2">
+								<div class="text-center text-danger h6 pt-1" th:if="${exist}">					
+			     					Blog with this name already exists
+		       					</div>
+								<div class="form-group text-left my-1">
 									<label for="name">Name</label>
 									<input type="text" id="name" placeholder="Name" autocomplete="off"
 										class="form-control" th:field="*{name}" />

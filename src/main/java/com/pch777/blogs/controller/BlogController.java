@@ -46,6 +46,7 @@ import com.pch777.blogs.repository.BlogRepository;
 import com.pch777.blogs.repository.UserEntityRepository;
 import com.pch777.blogs.security.UserSecurity;
 import com.pch777.blogs.service.ArticleService;
+import com.pch777.blogs.service.AuthService;
 import com.pch777.blogs.service.BlogService;
 import com.pch777.blogs.service.CategoryService;
 import com.pch777.blogs.service.CommentService;
@@ -64,6 +65,7 @@ public class BlogController {
 	private final CategoryService categoryService;
 	private final CommentService commentService;
 	private final UserSecurity userSecurity;
+	private final AuthService authService;
 	private final int numberOfLatestArticles;
 	private final int numberOfMostCommentedArticles;
 	private final int numberOfTopCategories;
@@ -78,6 +80,7 @@ public class BlogController {
 			CategoryService categoryService, 
 			CommentService commentService, 
 			UserSecurity userSecurity,
+			AuthService authService,
 			@Value("${numberOfLatestArticles}") int numberOfLatestArticles,
 			@Value("${numberOfMostCommentedArticles}") int numberOfMostCommentedArticles,
 			@Value("${numberOfTopCategories}") int numberOfTopCategories,
@@ -91,6 +94,7 @@ public class BlogController {
 		this.categoryService = categoryService;
 		this.commentService = commentService;
 		this.userSecurity = userSecurity;
+		this.authService = authService;
 		this.numberOfLatestArticles = numberOfLatestArticles;
 		this.numberOfMostCommentedArticles = numberOfMostCommentedArticles;
 		this.numberOfTopCategories = numberOfTopCategories;
@@ -124,9 +128,9 @@ public class BlogController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
 
-		ifNotAnonymousUserGetIdToModel(model, username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
 
-		boolean hasBlog = isUserHasBlog(username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 		
 		long totalBlogs = pageBlogs.getTotalElements();
 		int totalArticles = articleService.getAllArticles().size();
@@ -170,22 +174,6 @@ public class BlogController {
 		return "index";
 	}
 
-	private void ifNotAnonymousUserGetIdToModel(Model model, String username) throws ResourceNotFoundException {
-		if (!username.equalsIgnoreCase("anonymousUser")) {
-			UserEntity loggedUser = userRepository
-					.findByUsername(username)
-					.orElseThrow(() -> new ResourceNotFoundException("User with username " + username + " not found."));
-			model.addAttribute("loggedUserId", loggedUser.getId());
-		}
-	}
-
-	private boolean isUserHasBlog(String username) {
-		return blogRepository
-				.findAll()
-				.stream()
-				.anyMatch(b -> b.getUser().getUsername().equals(username));
-	}
-
 	@GetMapping("/blogs/{blogId}")
 	public String getBlogById(Model model, @PathVariable Long blogId, 
 			@RequestParam(defaultValue = "") String keyword,
@@ -216,9 +204,9 @@ public class BlogController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
 
-		ifNotAnonymousUserGetIdToModel(model, username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
 
-		boolean hasBlog = isUserHasBlog(username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 
 		boolean createButton = true;
 		model.addAttribute("createButton", createButton);
@@ -267,9 +255,9 @@ public class BlogController {
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
-		ifNotAnonymousUserGetIdToModel(model, username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
 
-		boolean hasBlog = isUserHasBlog(username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 
 		boolean createButton = true;
 		model.addAttribute("createButton", createButton);
@@ -325,9 +313,9 @@ public class BlogController {
 		List<DateDto> monthAndYear = listOfMonthsOfYear(LocalDateTime.now());
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
-		ifNotAnonymousUserGetIdToModel(model, username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
 
-		boolean hasBlog = isUserHasBlog(username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 
 		boolean createButton = true;
 		model.addAttribute("createButton", createButton);
@@ -376,8 +364,8 @@ public class BlogController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		String username = auth.getName();
-		ifNotAnonymousUserGetIdToModel(model, username);
-		boolean hasBlog = isUserHasBlog(username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 		boolean createButton = true;
 		model.addAttribute("createButton", createButton);
 		model.addAttribute("loggedUser", username);
@@ -405,8 +393,8 @@ public class BlogController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
 
-		ifNotAnonymousUserGetIdToModel(model, username);
-		boolean hasBlog = isUserHasBlog(username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 		boolean createButton = false;
 		model.addAttribute("createButton", createButton);
 		model.addAttribute("loggedUser", username);
@@ -421,11 +409,21 @@ public class BlogController {
 	public String createBlog(@Valid BlogDto blogDto, BindingResult bindingResult, Model model, Principal principal)
 			throws ResourceNotFoundException {
 		if (blogRepository.existsByName(blogDto.getName())) {
+			
+			authService.ifNotAnonymousUserGetIdToModel(model, principal.getName());
+			boolean hasBlog = authService.isUserHasBlog(principal.getName());
+			
+			model.addAttribute("hasBlog", hasBlog);
+			model.addAttribute("exist", true);
 			return "blog-form";
 		}
 
 		if (bindingResult.hasErrors()) {
-			ifNotAnonymousUserGetIdToModel(model, principal.getName());
+			authService.ifNotAnonymousUserGetIdToModel(model, principal.getName());
+			boolean hasBlog = authService.isUserHasBlog(principal.getName());
+			
+			model.addAttribute("hasBlog", hasBlog);
+			model.addAttribute("exist", true);
 			return "blog-form";
 		}
 
@@ -452,13 +450,17 @@ public class BlogController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String loggedUserUsername = auth.getName();
 		String blogOwnerUsername = blog.getUser().getUsername();
-		ifNotAnonymousUserGetIdToModel(model, loggedUserUsername);
+		authService.ifNotAnonymousUserGetIdToModel(model, loggedUserUsername);
 		
 		
 		if(userSecurity.isOwner(blogOwnerUsername, loggedUserUsername)) {
 			BlogDto blogDto = blogService.blogToBlogDto(blog);
 
+			boolean hasBlog = authService.isUserHasBlog(loggedUserUsername);
+			
 			boolean createButton = false;
+			
+			model.addAttribute("hasBlog", hasBlog);
 			model.addAttribute("createButton", createButton);
 			model.addAttribute("blogDto", blogDto);
 		} else {
@@ -470,13 +472,26 @@ public class BlogController {
 	@PostMapping("/blogs/{blogId}/update")
 	@Transactional
 	public String updateBlog(@PathVariable Long blogId, @Valid @ModelAttribute("blogDto") BlogDto blogDto,
-			BindingResult bindingResult, Model model) throws ResourceNotFoundException {
+			BindingResult bindingResult, Model model, Principal principal) throws ResourceNotFoundException {
 
 		if (bindingResult.hasErrors()) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			String username = auth.getName();
-
-			ifNotAnonymousUserGetIdToModel(model, username);
+			authService.ifNotAnonymousUserGetIdToModel(model, principal.getName());
+			boolean hasBlog = authService.isUserHasBlog(principal.getName());
+			boolean createButton = false;
+			
+			model.addAttribute("hasBlog", hasBlog);
+			model.addAttribute("createButton", createButton);
+			return "blog-update-form";
+		}
+		
+		if (blogRepository.existsByName(blogDto.getName())) {
+			authService.ifNotAnonymousUserGetIdToModel(model, principal.getName());
+			boolean hasBlog = authService.isUserHasBlog(principal.getName());
+			boolean createButton = false;
+			
+			model.addAttribute("hasBlog", hasBlog);
+			model.addAttribute("createButton", createButton);
+			model.addAttribute("exist", true);
 			return "blog-update-form";
 		}
 
@@ -495,8 +510,11 @@ public class BlogController {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
 
-		ifNotAnonymousUserGetIdToModel(model, username);
+		authService.ifNotAnonymousUserGetIdToModel(model, username);
+		boolean hasBlog = authService.isUserHasBlog(username);
 		boolean createButton = false;
+		
+		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("createButton", createButton);
 		model.addAttribute("blog", blog);
 
