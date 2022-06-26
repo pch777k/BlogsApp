@@ -44,38 +44,41 @@ https://blogs-pch777.herokuapp.com/
 
 ### User
 - [User registration with field validation](#user-registration-with-field-validation)
-- [Editing avatar](#edit-avatar)
+- Editing avatar
 
 ### Blog
-- [Adding a new blog](#add-a-new-bargain)
-- [Validation fields of blog](#validation-fields-of-bargain)
-- [Editing the blog](#edit-the-bargain)
+- Adding a new blog
+- Validation fields of blog
+- Editing the blog
 - [All blogs](#home-page)
 - [Sample blog page](#sample-blog-page)
 
 ### Article
-- [Adding a new article](#add-a-new-bargain)
-- [Validation fields of article](#validation-fields-of-article)
-- [Editing the article](#edit-the-bargain)
+- Adding a new article
+- Validation fields of article
+- Editing the article
 - Deleting the article
-- [All blog's articles](#main-page)
-- [All articles of specific category](#view-of-bargains-in-the-electronics-category)
-- [All articles of specific blog's category](#view-of-bargains-in-the-electronics-category)
-- [All articles of specific tag](#view-of-bargains-in-the-electronics-category)
-- [All articles of specific blog's tag](#view-of-bargains-in-the-electronics-category)
-- [Search engine in the articles](#view-of-bargains-in-the-electronics-category)
+- All blog's articles](#main-page)
+- All articles of specific category
+- All articles of specific blog's category
+- All articles of specific tag
+- All articles of specific blog's tag
+- Search engine in the articles
 - [View of a specific article](#sample-article-with-comments) 
 
 ### Category
-- [Adding a new category](#add-a-new-bargain)
+- Adding a new category
 
 ### Tag
-- [Adding a new tag](#add-a-new-bargain)
+- Adding a new tag
 
 ### Comment
 - Adding, editing, deleting a comment
 
 ## Screenshots
+#### User registration with field validation
+https://user-images.githubusercontent.com/56579554/175824221-79b507ba-555b-437a-8ec5-07d17e283ab8.mp4
+___
 #### Home page 
 ![blogs-screenshot-home-page](https://user-images.githubusercontent.com/56579554/174538793-b2f5ade5-ee27-43a6-ad89-2cd3920135a9.jpg)
 ___
