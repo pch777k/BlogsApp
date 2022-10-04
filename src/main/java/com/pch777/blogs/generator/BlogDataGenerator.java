@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -15,35 +15,15 @@ import com.pch777.blogs.model.Blog;
 import com.pch777.blogs.model.ImageFile;
 import com.pch777.blogs.service.ImageFileService;
 
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Service
 public class BlogDataGenerator {
 
 	private final ImageFileService imageFileService;
-	private final GeneratorMethods generatorMethods;
-	private final String blogNamesFilePath;
-	private final String blogDescriptionsFilePath;
-	private final String blogImageFilePath;	
-    private List<String> blogNames;
-    private List<String> blogDescriptions;
-    private List<String> imagePaths;
-    
-    public BlogDataGenerator(ImageFileService imageFileService, 
-    		GeneratorMethods generatorMethods, 
-    		@Value("${blogNamesFilePath}") String blogNamesFilePath, 
-    		@Value("${blogDescriptionsFilePath}") String blogDescriptionsFilePath, 
-    		@Value("${blogImageFilePath}") String blogImageFilePath,
-			List<String> blogNames, 
-			List<String> blogDescriptions, 
-			List<String> imagePaths) {
-		this.imageFileService = imageFileService;
-		this.generatorMethods = generatorMethods;
-		this.blogNamesFilePath = blogNamesFilePath;
-		this.blogDescriptionsFilePath = blogDescriptionsFilePath;
-		this.blogImageFilePath = blogImageFilePath;
-		this.blogNames = blogNames;
-		this.blogDescriptions = blogDescriptions;
-		this.imagePaths = imagePaths;
-	}
+	private final GeneratorMethods generatorMethods;	
+	private final BlogValuesProperties blogValuesProperties;
 
 	public Blog generateBlog() throws IOException {
     	Blog blog = new Blog();
@@ -81,22 +61,25 @@ public class BlogDataGenerator {
     }
        
 	private List<String> getBlogNames() throws IOException {
+		List<String> blogNames = new ArrayList<>();
         if (blogNames.isEmpty()) {
-            blogNames = generatorMethods.loadLines(blogNamesFilePath);
+            blogNames = generatorMethods.loadLines(blogValuesProperties.getBlogNamesFilePath());
         }
         return blogNames;
     }
 
     private List<String> getBlogDescriptions() throws IOException {
+    	List<String> blogDescriptions = new ArrayList<>();
         if (blogDescriptions.isEmpty()) {
-        	blogDescriptions = generatorMethods.loadLines(blogDescriptionsFilePath);
+        	blogDescriptions = generatorMethods.loadLines(blogValuesProperties.getBlogDescriptionsFilePath());
         }
         return blogDescriptions;
     }
     
     private List<String> getImagesPath() throws IOException {
+    	List<String> imagePaths = new ArrayList<>();
         if (imagePaths.isEmpty()) {
-        	imagePaths = generatorMethods.loadLines(blogImageFilePath);
+        	imagePaths = generatorMethods.loadLines(blogValuesProperties.getBlogImageFilePath());
         }
         return imagePaths;
     }

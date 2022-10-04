@@ -5,15 +5,14 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,14 +35,13 @@ import com.pch777.blogs.dto.BlogDto;
 import com.pch777.blogs.dto.DateDto;
 import com.pch777.blogs.exception.ForbiddenException;
 import com.pch777.blogs.exception.ResourceNotFoundException;
+import com.pch777.blogs.generator.ArticleValuesProperties;
 import com.pch777.blogs.model.Article;
 import com.pch777.blogs.model.Blog;
 import com.pch777.blogs.model.Category;
 import com.pch777.blogs.model.ImageFile;
 import com.pch777.blogs.model.Tag;
 import com.pch777.blogs.model.UserEntity;
-import com.pch777.blogs.repository.BlogRepository;
-import com.pch777.blogs.repository.UserEntityRepository;
 import com.pch777.blogs.security.UserSecurity;
 import com.pch777.blogs.service.ArticleService;
 import com.pch777.blogs.service.AuthService;
@@ -53,11 +51,14 @@ import com.pch777.blogs.service.CommentService;
 import com.pch777.blogs.service.ImageFileService;
 import com.pch777.blogs.service.TagService;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
+@RequiredArgsConstructor
 public class BlogController {
 
-	private final BlogRepository blogRepository;
-	private final UserEntityRepository userRepository;
+	private static final String BLOG_FORM = "blog-form";
+	private static final String BLOG_UPDATE_FORM = "blog-update-form";
 	private final BlogService blogService;
 	private final ImageFileService imageFileService;
 	private final ArticleService articleService;
@@ -66,41 +67,7 @@ public class BlogController {
 	private final CommentService commentService;
 	private final UserSecurity userSecurity;
 	private final AuthService authService;
-	private final int numberOfLatestArticles;
-	private final int numberOfMostCommentedArticles;
-	private final int numberOfTopCategories;
-	private final int numberOfTopTags;
-	
-	public BlogController(BlogRepository blogRepository, 
-			UserEntityRepository userRepository, 
-			BlogService blogService,
-			ImageFileService imageFileService, 
-			ArticleService articleService, 
-			TagService tagService,
-			CategoryService categoryService, 
-			CommentService commentService, 
-			UserSecurity userSecurity,
-			AuthService authService,
-			@Value("${numberOfLatestArticles}") int numberOfLatestArticles,
-			@Value("${numberOfMostCommentedArticles}") int numberOfMostCommentedArticles,
-			@Value("${numberOfTopCategories}") int numberOfTopCategories,
-			@Value("${numberOfTopTags}") int numberOfTopTags) {
-		this.blogRepository = blogRepository;
-		this.userRepository = userRepository;
-		this.blogService = blogService;
-		this.imageFileService = imageFileService;
-		this.articleService = articleService;
-		this.tagService = tagService;
-		this.categoryService = categoryService;
-		this.commentService = commentService;
-		this.userSecurity = userSecurity;
-		this.authService = authService;
-		this.numberOfLatestArticles = numberOfLatestArticles;
-		this.numberOfMostCommentedArticles = numberOfMostCommentedArticles;
-		this.numberOfTopCategories = numberOfTopCategories;
-		this.numberOfTopTags = numberOfTopTags;
-	}
-
+	private final ArticleValuesProperties articleValuesProperties;
 
 	@GetMapping({ "/", "/index" })
 	public String listBlogs(Model model, @RequestParam(defaultValue = "") String keyword,
@@ -111,19 +78,19 @@ public class BlogController {
 		
 		Page<Blog> pageBlogs = blogService.getAllBlogsByNameLike(pageable, keyword);
 
-		List<Article> latestFiveArticles = articleService.getLatestArticles(numberOfLatestArticles);
+		List<Article> latestFiveArticles = articleService.getLatestArticles(articleValuesProperties.getNumberOfLatestArticles());
 
-		List<Article> mostCommentedArticles = articleService.getMostCommentedArticles(numberOfMostCommentedArticles);
+		List<Article> mostCommentedArticles = articleService.getMostCommentedArticles(articleValuesProperties.getNumberOfMostCommentedArticles());
 
-		List<Category> topFourCategories = categoryService.findTopCategories(numberOfTopCategories);
+		List<Category> topFourCategories = categoryService.findTopCategories(articleValuesProperties.getNumberOfTopCategories());
 
 		List<Category> categories = categoryService.findAllCategoriesSortedByName();
 
-		List<Tag> topSixTags = tagService.findTopTags(numberOfTopTags);
+		List<Tag> topSixTags = tagService.findTopTags(articleValuesProperties.getNumberOfTopTags());
 		
 		List<Tag> tags = tagService.findAllTagsSorted();
 
-		List<Blog> blogs = blogRepository.findAll();
+		List<Blog> blogs = blogService.findAllBlogs();
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
@@ -134,7 +101,7 @@ public class BlogController {
 		
 		long totalBlogs = pageBlogs.getTotalElements();
 		int totalArticles = articleService.getAllArticles().size();
-		int totalUsers = userRepository.findAll().size();
+		int totalUsers = authService.getTotalUsers();
 		int totalComments = commentService.getAllComments().size();
 
 		boolean searchKeyword = keyword.length() > 0;
@@ -181,8 +148,8 @@ public class BlogController {
 			@RequestParam(defaultValue = "6") int pageSize)
 			throws ResourceNotFoundException {
 
-		Blog blog = blogRepository
-				.findById(blogId)
+		Blog blog = blogService
+				.getBlogById(blogId)
 				.orElseThrow(() -> new ResourceNotFoundException("Blog with id " + blogId + " not found"));
 
 		Sort sort = Sort.by("createdAt").descending();
@@ -199,7 +166,7 @@ public class BlogController {
 
 		List<DateDto> monthAndYear = listOfMonthsOfYear(LocalDateTime.now());
 
-		List<Blog> blogs = blogRepository.findAll();
+		List<Blog> blogs = blogService.findAllBlogs();
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
@@ -233,7 +200,7 @@ public class BlogController {
 			@RequestParam(defaultValue = "6") int pageSize)
 			throws ResourceNotFoundException {
 
-		Blog blog = blogRepository.findById(blogId)
+		Blog blog = blogService.getBlogById(blogId)
 				.orElseThrow(() -> new ResourceNotFoundException("Blog with id " + blogId + " not found"));
 
 		List<Article> articlesByMonth = articleService.getArticlesByBlogId(blogId).stream()
@@ -251,7 +218,7 @@ public class BlogController {
 
 		List<DateDto> monthAndYear = listOfMonthsOfYear(LocalDateTime.now());
 
-		List<Blog> blogs = blogRepository.findAll();
+		List<Blog> blogs = blogService.findAllBlogs();
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
@@ -293,9 +260,9 @@ public class BlogController {
 			@RequestParam(defaultValue = "1") int page,
 			@RequestParam(defaultValue = "6") int pageSize) throws ResourceNotFoundException {
 
-		Blog blog = blogRepository.findById(blogId)
+		Blog blog = blogService.getBlogById(blogId)
 				.orElseThrow(() -> new ResourceNotFoundException("Blog with id " + blogId + " not found"));
-		List<Blog> blogs = blogRepository.findAll();
+		List<Blog> blogs = blogService.findAllBlogs();
 
 		Sort sort = Sort.by("createdAt").descending();
 		Pageable pageable = PageRequest.of(page - 1, pageSize, sort);
@@ -341,10 +308,10 @@ public class BlogController {
 	public String getBlogByIdAndArticlesByTagName(Model model, @PathVariable Long blogId, @PathVariable String tagName)
 			throws ResourceNotFoundException {
 
-		Blog blog = blogRepository.findById(blogId)
+		Blog blog = blogService.getBlogById(blogId)
 				.orElseThrow(() -> new ResourceNotFoundException("Blog with id " + blogId + " not found"));
 
-		List<Blog> blogs = blogRepository.findAll();
+		List<Blog> blogs = blogService.findAllBlogs();
 
 		List<Article> articles = articleService.getArticlesByBlogId(blogId);
 
@@ -401,21 +368,22 @@ public class BlogController {
 		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("blogDto", new BlogDto());
 
-		return "blog-form";
+		return BLOG_FORM;
 	}
 
 	@Transactional
 	@PostMapping("/blogs/add")
 	public String createBlog(@Valid BlogDto blogDto, BindingResult bindingResult, Model model, Principal principal)
 			throws ResourceNotFoundException {
-		if (blogRepository.existsByName(blogDto.getName())) {
+			boolean blogNameExists = blogService.isBlogExist(blogDto.getName());
+		if (blogNameExists) {
 			
 			authService.ifNotAnonymousUserGetIdToModel(model, principal.getName());
 			boolean hasBlog = authService.isUserHasBlog(principal.getName());
 			
 			model.addAttribute("hasBlog", hasBlog);
 			model.addAttribute("exist", true);
-			return "blog-form";
+			return BLOG_FORM;
 		}
 
 		if (bindingResult.hasErrors()) {
@@ -424,18 +392,18 @@ public class BlogController {
 			
 			model.addAttribute("hasBlog", hasBlog);
 			model.addAttribute("exist", true);
-			return "blog-form";
+			return BLOG_FORM;
 		}
 
 		Blog blog = new Blog();
 		blog.setName(blogDto.getName());
 		blog.setDescription(blogDto.getDescription());
-		UserEntity user = userRepository
+		UserEntity user = authService
 				.findByUsername(principal.getName())
 				.orElseThrow(() -> new UsernameNotFoundException("User with username " + principal.getName() + " not found"));
 		blog.setUser(user);
 
-		blogRepository.save(blog);
+		blogService.save(blog);
 		return "redirect:/blogs/" + blog.getId() + "/image/add";
 
 	}
@@ -466,7 +434,7 @@ public class BlogController {
 		} else {
 			throw new ForbiddenException("You don't have permission to do it.");
 		}
-		return "blog-update-form";
+		return BLOG_UPDATE_FORM;
 	}
 
 	@PostMapping("/blogs/{blogId}/update")
@@ -481,10 +449,10 @@ public class BlogController {
 			
 			model.addAttribute("hasBlog", hasBlog);
 			model.addAttribute("createButton", createButton);
-			return "blog-update-form";
+			return BLOG_UPDATE_FORM;
 		}
-		
-		if (blogRepository.existsByName(blogDto.getName())) {
+		boolean blogNameExists = blogService.isBlogExist(blogDto.getName());
+		if (blogNameExists) {
 			authService.ifNotAnonymousUserGetIdToModel(model, principal.getName());
 			boolean hasBlog = authService.isUserHasBlog(principal.getName());
 			boolean createButton = false;
@@ -492,7 +460,7 @@ public class BlogController {
 			model.addAttribute("hasBlog", hasBlog);
 			model.addAttribute("createButton", createButton);
 			model.addAttribute("exist", true);
-			return "blog-update-form";
+			return BLOG_UPDATE_FORM;
 		}
 
 		Blog blog = blogService.getBlogById(blogId)
@@ -505,7 +473,7 @@ public class BlogController {
 
 	@GetMapping("/blogs/{id}/image/add")
 	public String showImageForm(@PathVariable Long id, Model model) throws ResourceNotFoundException {
-		Blog blog = blogRepository.findById(id)
+		Blog blog = blogService.getBlogById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found"));
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
@@ -525,7 +493,7 @@ public class BlogController {
 	@PostMapping("/blogs/{id}/image/add")
 	public String addImage(@PathVariable Long id, @RequestParam("file") MultipartFile file)
 			throws ResourceNotFoundException, IOException {
-		Blog blog = blogRepository.findById(id)
+		Blog blog = blogService.getBlogById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found"));
 		ImageFile imageFile = ImageFile.builder()
 				.file(file.getBytes())
@@ -541,9 +509,9 @@ public class BlogController {
 
 	@GetMapping("/blogs/{id}/image")
 	public void showImage(@PathVariable Long id, HttpServletResponse response)
-			throws ServletException, IOException, ResourceNotFoundException {
+			throws IOException, ResourceNotFoundException {
 
-		Blog blog = blogRepository.findById(id)
+		Blog blog = blogService.getBlogById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Blog with id " + id + " not found"));
 		response.setContentType("image/jpeg, image/jpg, image/png, image/gif, image/pdf");
 		response.getOutputStream().write(blog.getImage().getFile());
@@ -551,13 +519,17 @@ public class BlogController {
 	}
 
 	private List<Category> getCategoriesByBlogId(Long blogId) {
-		return articleService.getArticlesByBlogId(blogId).stream().map(a -> a.getCategory()).distinct()
+		return articleService.getArticlesByBlogId(blogId).stream().map(Article::getCategory).distinct()
 				.collect(Collectors.toList());
 	}
 
 	private List<Tag> getTagsByBlogId(Long blogId) {
-		return articleService.getArticlesByBlogId(blogId).stream().map(a -> a.getTags()).flatMap(t -> t.stream())
-				.distinct().collect(Collectors.toList());
+		return articleService.getArticlesByBlogId(blogId)
+				.stream()
+				.map(Article::getTags)
+				.flatMap(Collection::stream)
+				.distinct()
+				.collect(Collectors.toList());
 	}
 
 	

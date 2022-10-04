@@ -1,7 +1,7 @@
 package com.pch777.blogs.security;
 
+import java.io.Serializable;
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -13,7 +13,7 @@ import com.pch777.blogs.model.UserEntity;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class UserEntityDetails implements UserDetails {
+public class UserEntityDetails implements UserDetails, Serializable {
 
 	private static final long serialVersionUID = 4449860334680492515L;
 
@@ -21,12 +21,11 @@ public class UserEntityDetails implements UserDetails {
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Set<GrantedAuthority> authorities = user
+		return user
 				.getRoles()
 				.stream().map(r -> "ROLE_" + r)
 				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toSet());
-		return authorities;
 	}
 
 	@Override

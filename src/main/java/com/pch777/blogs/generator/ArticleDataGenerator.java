@@ -5,65 +5,43 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import com.pch777.blogs.model.Article;
+import com.pch777.blogs.model.Blog;
+import com.pch777.blogs.model.Category;
 import com.pch777.blogs.model.ImageFile;
+import com.pch777.blogs.model.Tag;
+import com.pch777.blogs.model.UserEntity;
 import com.pch777.blogs.service.ImageFileService;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
-@PropertySource("classpath:values.properties")
+@RequiredArgsConstructor
 public class ArticleDataGenerator {
 
 	private final ImageFileService imageFileService;
 	private final GeneratorMethods generatorMethods;
-	private final String articleTitlesFilePath;
-	private final String articleSummariesFilePath;
-	private final String articleContentsFilePath;
-	private final String articleImagesFilePath;
-	private final int minutesRangeForPastArticles;
-	private List<String> articleTitles;
-    private List<String> articleSummaries;
-    private List<String> articleContents;
-    private List<String> imagePaths;
+	private final ArticleValuesProperties articleValuesProperties; 	
 	
-	public ArticleDataGenerator(ImageFileService imageFileService, 
-			GeneratorMethods generatorMethods, 
-			@Value("${articleTitlesFilePath}") String articleTitlesFilePath, 
-			@Value("${articleSummariesFilePath}") String articleSummariesFilePath, 
-			@Value("${articleContentsFilePath}") String articleContentsFilePath,
-			@Value("${articleImagesFilePath}") String articleImagesFilePath, 
-			@Value("${minutesRangeForPastArticles}") int minutesRangeForPastArticles,
-			List<String> articleTitles,
-		    List<String> articleSummaries,
-		    List<String> articleContents,
-		    List<String> imagePaths) {
-		this.imageFileService = imageFileService;
-		this.generatorMethods = generatorMethods;
-		this.articleTitlesFilePath = articleTitlesFilePath;
-		this.articleSummariesFilePath = articleSummariesFilePath;
-		this.articleContentsFilePath = articleContentsFilePath;
-		this.articleImagesFilePath = articleImagesFilePath;
-		this.minutesRangeForPastArticles = minutesRangeForPastArticles;
-		this.articleTitles = articleTitles;
-		this.articleSummaries = articleSummaries;
-		this.articleContents = articleContents;
-		this.imagePaths = imagePaths;
-	}     
-	
-    public Article generateArticle() throws IOException {
+    public Article generateArticle(Blog blog, UserEntity user, Category category, Set<Tag> tags) throws IOException {
     	Article article = new Article();
     	article.setTitle(getRandomArticleTitle());
     	article.setSummary(getRandomArticleSummaries());
     	article.setContent(getRandomArticleContents());
     	article.setImage(getRandomImage());
     	article.setCreatedAt(getRandomArticleDate());
+    	article.setBlog(blog);
+    	article.setUser(user);
+    	article.setCategory(category);
+    	article.setTags(tags);
         return article;
     }  
     
@@ -98,29 +76,33 @@ public class ArticleDataGenerator {
     }
     
 	private List<String> getArticleTitles() throws IOException {
+		List<String> articleTitles = new ArrayList<>();
         if (articleTitles.isEmpty()) {
-        	articleTitles = generatorMethods.loadLines(articleTitlesFilePath);
+        	articleTitles = generatorMethods.loadLines(articleValuesProperties.getArticleTitlesFilePath());
         }
         return articleTitles;
     }
 
     private List<String> getArticleSummaries() throws IOException {
+    	List<String> articleSummaries = new ArrayList<>();
         if (articleSummaries.isEmpty()) {
-        	articleSummaries = generatorMethods.loadLines(articleSummariesFilePath);
+        	articleSummaries = generatorMethods.loadLines(articleValuesProperties.getArticleSummariesFilePath());
         }
         return articleSummaries;
     }
     
     private List<String> getArticleContents() throws IOException {
+    	List<String> articleContents = new ArrayList<>();
         if (articleContents.isEmpty()) {
-        	articleContents = generatorMethods.loadLines(articleContentsFilePath);
+        	articleContents = generatorMethods.loadLines(articleValuesProperties.getArticleContentsFilePath());
         }
         return articleContents;
     }
     
     private List<String> getImagesPath() throws IOException {
+    	List<String> imagePaths = new ArrayList<>();
         if (imagePaths.isEmpty()) {
-        	imagePaths = generatorMethods.loadLines(articleImagesFilePath);
+        	imagePaths = generatorMethods.loadLines(articleValuesProperties.getArticleImagesFilePath());
         }
         return imagePaths;
     }
@@ -128,7 +110,7 @@ public class ArticleDataGenerator {
 	private LocalDateTime getRandomArticleDate() {
         return LocalDateTime
                 .now().minusMinutes(
-                		generatorMethods.getRandomNumberOfMinutes(minutesRangeForPastArticles));
+                		generatorMethods.getRandomNumberOfMinutes(articleValuesProperties.getMinutesRangeForPastArticles()));
     }
 
     

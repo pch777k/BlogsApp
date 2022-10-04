@@ -12,9 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.pch777.blogs.exception.ResourceNotFoundException;
 import com.pch777.blogs.generator.ArticleDataGenerator;
 import com.pch777.blogs.generator.BlogDataGenerator;
+import com.pch777.blogs.generator.BlogValuesProperties;
 import com.pch777.blogs.generator.CategoryDataGenerator;
 import com.pch777.blogs.generator.CommentDataGenerator;
 import com.pch777.blogs.generator.GeneratorMethods;
@@ -41,8 +40,10 @@ import com.pch777.blogs.repository.TagRepository;
 import com.pch777.blogs.repository.UserEntityRepository;
 import com.pch777.blogs.service.ImageFileService;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
-@PropertySource("classpath:values.properties")
+@RequiredArgsConstructor
 public class ApplicationStartup implements CommandLineRunner {
 
 	private final TagRepository tagRepository;
@@ -50,72 +51,25 @@ public class ApplicationStartup implements CommandLineRunner {
 	private final ArticleRepository articleRepository;
 	private final CategoryRepository categoryRepository;
 	private final UserEntityRepository userRepository;
+	private final CommentRepository commentRepository;
 	private final UserDataGenerator userGenerator;
 	private final BlogDataGenerator blogGenerator;
 	private final ArticleDataGenerator articleGenerator;
 	private final CategoryDataGenerator categoryGenerator;
 	private final CommentDataGenerator commentGenerator;
-	private final CommentRepository commentRepository;
 	private final ImageFileService imageFileService;
 	private final GeneratorMethods generatorMethods;
-	private final int numberOfUsersWithoutBlog;
-	private final int numberOfUsersWithBlog;
-	private final int minNumberOfArticles;
-	private final int maxNumberOfArticles;
-	private final int minNumberOfComments;
-	private final int maxNumberOfComments;
-	private final String defaultUserAvatarFilePath;
-	
-	public ApplicationStartup(TagRepository tagRepository, 
-			BlogRepository blogRepository,
-			ArticleRepository articleRepository, 
-			CategoryRepository categoryRepository,
-			UserEntityRepository userRepository, 
-			UserDataGenerator userGenerator, 
-			BlogDataGenerator blogGenerator,
-			ArticleDataGenerator articleGenerator, 
-			CategoryDataGenerator categoryGenerator,
-			CommentDataGenerator commentGenerator, 
-			CommentRepository commentRepository,
-			ImageFileService imageFileService, 
-			GeneratorMethods generatorMethods, 
-			@Value("${numberOfUsersWithoutBlog}") int numberOfUsersWithoutBlog,
-			@Value("${numberOfUsersWithBlog}") int numberOfUsersWithBlog, 
-			@Value("${minNumberOfArticles}") int minNumberOfArticles, 
-			@Value("${maxNumberOfArticles}") int maxNumberOfArticles, 
-			@Value("${minNumberOfComments}") int minNumberOfComments,
-			@Value("${maxNumberOfComments}") int maxNumberOfComments, 
-			@Value("${defaultUserAvatarFilePath}") String defaultUserAvatarFilePath) {
-		this.tagRepository = tagRepository;
-		this.blogRepository = blogRepository;
-		this.articleRepository = articleRepository;
-		this.categoryRepository = categoryRepository;
-		this.userRepository = userRepository;
-		this.userGenerator = userGenerator;
-		this.blogGenerator = blogGenerator;
-		this.articleGenerator = articleGenerator;
-		this.categoryGenerator = categoryGenerator;
-		this.commentGenerator = commentGenerator;
-		this.commentRepository = commentRepository;
-		this.imageFileService = imageFileService;
-		this.generatorMethods = generatorMethods;
-		this.numberOfUsersWithoutBlog = numberOfUsersWithoutBlog;
-		this.numberOfUsersWithBlog = numberOfUsersWithBlog;
-		this.minNumberOfArticles = minNumberOfArticles;
-		this.maxNumberOfArticles = maxNumberOfArticles;
-		this.minNumberOfComments = minNumberOfComments;
-		this.maxNumberOfComments = maxNumberOfComments;
-		this.defaultUserAvatarFilePath = defaultUserAvatarFilePath;
-	}
+	private final Random random;
+	private final BlogValuesProperties blogValuesProperties;
 
 	@Override
 	@Transactional
 	public void run(String... args) throws Exception {
 		getDefaultImage();
-		generateUsersWithoutBlog(numberOfUsersWithoutBlog);
-		generateData(numberOfUsersWithBlog, minNumberOfArticles, 
-				maxNumberOfArticles, minNumberOfComments, maxNumberOfComments);
-
+		generateUsersWithoutBlog(blogValuesProperties.getNumberOfUsersWithoutBlog());
+		generateData(blogValuesProperties.getNumberOfUsersWithBlog(), blogValuesProperties.getMinNumberOfArticles(),
+				blogValuesProperties.getMaxNumberOfArticles(), blogValuesProperties.getMinNumberOfComments(),
+				blogValuesProperties.getMaxNumberOfComments());
 	}
 
 	private void generateUsersWithoutBlog(int numberOfUsers) throws IOException {
@@ -137,65 +91,71 @@ public class ApplicationStartup implements CommandLineRunner {
 			int randomNumberOfArticles = generatorMethods.randomNumberBetweenMinAndMax(minNumberOfArticles,
 					maxNumberOfArticles);
 
-			for (int j = 0; j < randomNumberOfArticles; j++) {
-
-				Article article = articleGenerator.generateArticle();
-				article.setBlog(blog);
-				article.setUser(user);
-				Category category = categoryGenerator.generateCategory();
-				String categoryName = category.getName();
-				if (categoryRepository.existsByNameIgnoreCase(categoryName)) {
-
-					category = categoryRepository.findByName(categoryName).orElseThrow(
-							() -> new ResourceNotFoundException("Category with name " + categoryName + "not found"));
-				} else {
-					categoryRepository.save(category);
-				}
-
-				Set<String> tagNames = categoryGenerator.generateTagsByCategoryName(category.getName());
-
-				Set<Tag> tags = tagNames.stream().map(name -> {
-					if (tagRepository.existsByNameIgnoreCase(name)) {
-						return tagRepository.findTagByName(name).get();
-					}
-					return tagRepository.save(new Tag(name));
-				}).collect(Collectors.toSet());
-
-				article.setCategory(category);
-				article.setTags(tags);
-				articleRepository.save(article);
-				int randomNumberOfComments = generatorMethods.randomNumberBetweenMinAndMax(minNumberOfComments,
-						maxNumberOfComments);
-				for (int k = 0; k < randomNumberOfComments; k++) {
-					Comment comment = commentGenerator.generateComment();
-					comment.setArticle(article);
-					comment.setUser(randomUser(userRepository.findAll()));
-					comment.setCreatedAt(randomCommentDate(article.getCreatedAt()));
-					commentRepository.save(comment);
-				}
-			}
+			createRandomNumbersOfArticles(minNumberOfComments, maxNumberOfComments, user, blog, randomNumberOfArticles);
 		}
 
 	}
 
-	private UserEntity randomUser(List<UserEntity> users) {
-		Random random = new Random();
-		return users.get(random.nextInt(users.size()));
+	private void createRandomNumbersOfArticles(int minNumberOfComments, int maxNumberOfComments, UserEntity user,
+			Blog blog, int randomNumberOfArticles) throws IOException, ResourceNotFoundException {
 
+		for (int j = 0; j < randomNumberOfArticles; j++) {
+			Category category = categoryGenerator.generateCategory();
+			String categoryName = category.getName();
+			boolean categoryExists = categoryRepository.existsByNameIgnoreCase(categoryName);
+			if (categoryExists) {
+				category = categoryRepository.findByName(categoryName).orElseThrow(
+						() -> new ResourceNotFoundException("Category with name " + categoryName + "not found"));
+			} else {
+				categoryRepository.save(category);
+			}
+
+			Set<String> tagNames = categoryGenerator.generateTagsByCategoryName(category.getName());
+			Set<Tag> tags = tagNamesToTags(tagNames);
+			Article article = articleGenerator.generateArticle(blog, user, category, tags);
+			articleRepository.save(article);
+			int randomNumberOfComments = generatorMethods.randomNumberBetweenMinAndMax(minNumberOfComments,
+					maxNumberOfComments);
+			createRandomNumbersOfCommentsForArticle(article, randomNumberOfComments);
+		}
+	}
+
+	private Set<Tag> tagNamesToTags(Set<String> tagNames) {
+		return tagNames.stream().map(name -> {
+			boolean tagExists = tagRepository.existsByNameIgnoreCase(name);
+			if (tagExists) {
+				return tagRepository.findTagByName(name).get();
+			}
+			return tagRepository.save(new Tag(name));
+		}).collect(Collectors.toSet());
+	}
+
+	private void createRandomNumbersOfCommentsForArticle(Article article, int randomNumberOfComments)
+			throws IOException {
+		for (int i = 0; i < randomNumberOfComments; i++) {
+			Comment comment = commentGenerator.generateComment();
+			comment.setArticle(article);
+			comment.setUser(randomUser(userRepository.findAll()));
+			comment.setCreatedAt(randomCommentDate(article.getCreatedAt()));
+			commentRepository.save(comment);
+		}
+	}
+
+	private UserEntity randomUser(List<UserEntity> users) {
+		return users.get(random.nextInt(users.size()));
 	}
 
 	private LocalDateTime randomCommentDate(LocalDateTime articleCreatedAt) {
-		Random random = new Random();
 		Duration duration = Duration.between(articleCreatedAt, LocalDateTime.now());
 		int minutesRange = (int) duration.toMinutes();
 		return LocalDateTime.now().minusMinutes(random.nextInt(minutesRange));
 	}
 
 	private ImageFile getDefaultImage() throws IOException {
-		ClassPathResource resource = new ClassPathResource(defaultUserAvatarFilePath);
+		ClassPathResource resource = new ClassPathResource(blogValuesProperties.getDefaultUserAvatarFilePath());
 
 		InputStream inputStream = resource.getInputStream();
-		File file = new File(defaultUserAvatarFilePath);
+		File file = new File(blogValuesProperties.getDefaultUserAvatarFilePath());
 		FileUtils.copyInputStreamToFile(inputStream, file);
 		ImageFile imageFile = new ImageFile();
 		if (file.exists()) {

@@ -5,10 +5,10 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -44,11 +44,10 @@ import com.pch777.blogs.model.Comment;
 import com.pch777.blogs.model.ImageFile;
 import com.pch777.blogs.model.Tag;
 import com.pch777.blogs.model.UserEntity;
-import com.pch777.blogs.repository.BlogRepository;
-import com.pch777.blogs.repository.UserEntityRepository;
 import com.pch777.blogs.security.UserSecurity;
 import com.pch777.blogs.service.ArticleService;
 import com.pch777.blogs.service.AuthService;
+import com.pch777.blogs.service.BlogService;
 import com.pch777.blogs.service.CategoryService;
 import com.pch777.blogs.service.CommentService;
 import com.pch777.blogs.service.ImageFileService;
@@ -60,11 +59,14 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class ArticleController {
 	
+	private static final String ARTICLE_UPDATE_FORM = "article-update-form";
+	private static final String ARTICLE_FORM = "article-form";
+	private static final String REDIRECT_ARTICLES = "redirect:/articles/";
+	private static final String REDIRECT_BLOGS = "redirect:/blogs/";
 	private final ArticleService articleService;
 	private final ImageFileService imageFileService;
 	private final AuthService authService;
-	private final BlogRepository blogRepository;
-	private final UserEntityRepository userRepository;
+	private final BlogService blogService;
 	private final CategoryService categoryService;
 	private final TagService tagService;
 	private final CommentService commentService;
@@ -89,13 +91,13 @@ public class ArticleController {
 		
 		Blog blog = article.getBlog();
 	
-		List<Blog> blogs = blogRepository.findAll();
+		List<Blog> blogs = blogService.findAllBlogs();
 			
 		List<Tag> tags = articleService
 			.getArticlesByBlogId(blog.getId())
 			.stream()
-			.map(a -> a.getTags())
-			.flatMap(t -> t.stream())
+			.map(Article::getTags)
+			.flatMap(Collection::stream)
 			.distinct()
 			.collect(Collectors.toList());
 		
@@ -104,7 +106,7 @@ public class ArticleController {
 		List<Category> blogCategories = articleService
 				.getArticlesByBlogId(blog.getId())
 				.stream()
-				.map(a -> a.getCategory())
+				.map(Article::getCategory)
 				.distinct()
 				.collect(Collectors.toList());
 		
@@ -133,7 +135,6 @@ public class ArticleController {
 		model.addAttribute("blogCategories", blogCategories);
 		model.addAttribute("categories", categories);
 		model.addAttribute("commentDto", new CommentDto());
-		
 		
 		return "article";
 	}
@@ -173,7 +174,7 @@ public class ArticleController {
 		model.addAttribute("categoryDto", new CategoryDto());
 		model.addAttribute("tagDto", new TagDto());
 		
-		return "article-form";
+		return ARTICLE_FORM;
 	}
 	
 	@Transactional
@@ -200,14 +201,14 @@ public class ArticleController {
 			model.addAttribute("categoryDto", new CategoryDto());
 			model.addAttribute("tagDto", new TagDto());
 
-			return "article-form";
+			return ARTICLE_FORM;
 		}
 
-		UserEntity user = userRepository
+		UserEntity user = authService
 				.findByUsername(principal.getName())
 				.orElseThrow(() -> new UsernameNotFoundException("User with username " + principal.getName() + " not found"));
 		
-		Blog blog = blogRepository
+		Blog blog = blogService
 				.findByUser(user)
 				.orElseThrow(() -> new ResourceNotFoundException("User with username " + principal.getName() + " does not have a blog"));
 
@@ -215,7 +216,7 @@ public class ArticleController {
 		article.setBlog(blog);
 		article.setUser(user);
 		
-		return "redirect:/articles/" + article.getId() + "/image/add";
+		return REDIRECT_ARTICLES + article.getId() + "/image/add";
 	}
 	
 	@GetMapping("/articles/{articleId}/update")
@@ -248,7 +249,7 @@ public class ArticleController {
 			throw new ForbiddenException("You don't have permission to do it.");
 		}
 			
-		return "article-update-form";
+		return ARTICLE_UPDATE_FORM;
 	}
 	
 	@Transactional
@@ -274,11 +275,11 @@ public class ArticleController {
 			model.addAttribute("categories", categories);
 			model.addAttribute("tags", tags);
 
-			return "article-update-form";
+			return ARTICLE_UPDATE_FORM;
 		}
 		articleService.updateArticle(articleId, articleDto);
 
-		return "redirect:/articles/" + articleId;
+		return REDIRECT_ARTICLES + articleId;
 	}
 	
 	@GetMapping("/articles/{articleId}/delete")
@@ -297,7 +298,7 @@ public class ArticleController {
 			throw new ForbiddenException("You don't have permission to do it.");
 		}
 		 
-		return "redirect:/blogs/" + article.getBlog().getId();
+		return REDIRECT_BLOGS + article.getBlog().getId();
 	}
 	
 	@GetMapping("/articles/{id}/image/add")
@@ -332,13 +333,12 @@ public class ArticleController {
 		imageFileService.saveImageFile(imageFile);
 		article.setImage(imageFile);
 
-
-		return "redirect:/blogs/" + article.getBlog().getId();
+		return REDIRECT_BLOGS + article.getBlog().getId();
 	}
 
 	@GetMapping("/articles/{id}/image")
 	public void showImage(@PathVariable Long id, HttpServletResponse response)
-			throws ServletException, IOException, ResourceNotFoundException {
+			throws IOException, ResourceNotFoundException {
 
 		Article article = articleService.getArticleById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + id + " not found"));

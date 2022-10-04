@@ -39,7 +39,7 @@
 					<a class="nav-link text-secondary dropdown-toggle" data-toggle="dropdown" href="#" role="button"
 						aria-haspopup="true" aria-expanded="false">
 						<img class="avatar avatar-md rounded-circle " width="40" height="40"
-							th:src="@{'/users/' + ${loggedUserId} + '/image'}">
+							th:src="@{'/users/' + ${loggedUserId} + '/image'}" alt="avatar">
 					</a>
 					<div class="dropdown-menu">
 						<a class="dropdown-item" th:href="@{'/users/' + ${loggedUserId} + '/image/add'}">Change avatar</a>

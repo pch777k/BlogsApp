@@ -32,8 +32,10 @@ public class BlogRestController {
 	
 	@Transactional
 	@PostMapping
-	public ResponseEntity<?> createBlog(@Valid @RequestBody BlogDto blogDto, Principal principal) {
-		if(blogRepository.existsByName(blogDto.getName())) {
+	public ResponseEntity<Object> createBlog(@Valid @RequestBody BlogDto blogDto, Principal principal) {
+		boolean blogNameExists = blogRepository.existsByName(blogDto.getName());
+		
+		if(blogNameExists) {
 			return ResponseEntity
 			          .badRequest()
 			          .body(new MessageResponse("Error: Blog name is already taken!"));

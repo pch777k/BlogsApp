@@ -1,6 +1,5 @@
 package com.pch777.blogs.service;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,9 +24,9 @@ public class AuthService {
 	private final BlogRepository blogRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final ImageFileService imageFileService;
-	private final long DEFAULT_IMAGE_ID = 1L;
+	private static final long DEFAULT_IMAGE_ID = 1L;
 		
-	public UserEntity signup(RegisterUserDto userDto) throws IOException, ResourceNotFoundException {
+	public UserEntity signup(RegisterUserDto userDto) throws ResourceNotFoundException {
 		UserEntity user = new UserEntity();
 		user.setFirstName(userDto.getFirstName());
 		user.setLastName(userDto.getLastName());
@@ -49,7 +48,7 @@ public class AuthService {
 			Optional<Blog> blog = blogRepository
 					.findAll()
 					.stream()
-					.filter(b -> b.getUser().getId() == loggedUser.getId())
+					.filter(b -> b.getUser().getId().equals(loggedUser.getId()) )
 					.findFirst();
 			if(blog.isPresent()) {
 				model.addAttribute("loggedUserBlogId", blog.get().getId());
@@ -89,6 +88,10 @@ public class AuthService {
 		userDto.setPassword(user.getPassword());
 		userDto.setUsername(user.getUsername());
 		return userDto;
+	}
+	
+	public int getTotalUsers() {
+		return userRepository.findAll().size();
 	}
 	
 }

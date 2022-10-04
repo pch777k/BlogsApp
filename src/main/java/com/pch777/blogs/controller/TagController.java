@@ -5,8 +5,6 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -20,49 +18,32 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.pch777.blogs.dto.TagDto;
 import com.pch777.blogs.exception.ResourceNotFoundException;
+import com.pch777.blogs.generator.ArticleValuesProperties;
 import com.pch777.blogs.model.Article;
 import com.pch777.blogs.model.Blog;
 import com.pch777.blogs.model.Category;
 import com.pch777.blogs.model.Tag;
-import com.pch777.blogs.repository.BlogRepository;
-import com.pch777.blogs.repository.UserEntityRepository;
 import com.pch777.blogs.service.ArticleService;
 import com.pch777.blogs.service.AuthService;
+import com.pch777.blogs.service.BlogService;
 import com.pch777.blogs.service.CategoryService;
 import com.pch777.blogs.service.CommentService;
 import com.pch777.blogs.service.TagService;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
-@PropertySource("classpath:values.properties")
+@RequiredArgsConstructor
 public class TagController {
 
+	private static final String TAG_FORM = "tag-form";
 	private final TagService tagService;
 	private final ArticleService articleService;
 	private final CategoryService categoryService;
-	private final BlogRepository blogRepository;
-	private final UserEntityRepository userRepository;
+	private final BlogService blogService;
 	private final CommentService commentService;
 	private final AuthService authService;
-	private final int numberOfLatestArticles;
-	private final int numberOfTopCategories;
-	private final int numberOfTopTags;
-
-	public TagController(TagService tagService, ArticleService articleService, CategoryService categoryService,
-			BlogRepository blogRepository, UserEntityRepository userRepository, CommentService commentService,
-			AuthService authService, @Value("${numberOfLatestArticles}") int numberOfLatestArticles,
-			@Value("${numberOfTopCategories}") int numberOfTopCategories,
-			@Value("${numberOfTopTags}") int numberOfTopTags) {
-		this.tagService = tagService;
-		this.articleService = articleService;
-		this.categoryService = categoryService;
-		this.blogRepository = blogRepository;
-		this.userRepository = userRepository;
-		this.commentService = commentService;
-		this.authService = authService;
-		this.numberOfLatestArticles = numberOfLatestArticles;
-		this.numberOfTopCategories = numberOfTopCategories;
-		this.numberOfTopTags = numberOfTopTags;
-	}
+	private final ArticleValuesProperties articleValuesProperties;
 
 	@GetMapping("/tags/add")
 	public String showAddTagForm(Model model) throws ResourceNotFoundException {
@@ -75,7 +56,7 @@ public class TagController {
 		model.addAttribute("hasBlog", hasBlog);
 		model.addAttribute("tagDto", new TagDto());
 
-		return "tag-form";
+		return TAG_FORM;
 	}
 
 	@PostMapping("/tags/add")
@@ -90,7 +71,7 @@ public class TagController {
 			boolean hasBlog = authService.isUserHasBlog(username);
 			
 			model.addAttribute("hasBlog", hasBlog);
-			return "tag-form";
+			return TAG_FORM;
 		}
 		
 		if (tagService.tagExists(tagDto.getName())) {
@@ -102,7 +83,7 @@ public class TagController {
 			
 			model.addAttribute("hasBlog", hasBlog);
 			model.addAttribute("exist", true);
-			return "tag-form";
+			return TAG_FORM;
 		}
 		tagService.addTag(tagDto.getName());
 		return "redirect:/";
@@ -125,22 +106,22 @@ public class TagController {
 
 		List<Article> articlesByTag = getArticlesByTagName(tag, articles);
 
-		List<Article> latestFiveArticles = articleService.getLatestArticles(numberOfLatestArticles);
+		List<Article> latestFiveArticles = articleService.getLatestArticles(articleValuesProperties.getNumberOfLatestArticles());
 
-		List<Category> topCategories = categoryService.findTopCategories(numberOfTopCategories);
+		List<Category> topCategories = categoryService.findTopCategories(articleValuesProperties.getNumberOfTopCategories());
 
 		List<Category> categories = categoryService.findAllCategoriesSortedByName();
 
-		List<Tag> topSixTags = tagService.findTopTags(numberOfTopTags);
+		List<Tag> topSixTags = tagService.findTopTags(articleValuesProperties.getNumberOfTopTags());
 		
 		List<Tag> tags = tagService.findAllTagsSorted();
 
-		List<Blog> blogs = blogRepository.findAll();
+		List<Blog> blogs = blogService.findAllBlogs();
 
 		boolean hasBlog = authService.isUserHasBlog(username);
 		int totalBlogs = blogs.size();
 		int totalArticles = articleService.getAllArticles().size();
-		int totalUsers = userRepository.findAll().size();
+		int totalUsers = authService.getTotalUsers();
 		int totalComments = commentService.getAllComments().size();
 		boolean createButton = true;
 			

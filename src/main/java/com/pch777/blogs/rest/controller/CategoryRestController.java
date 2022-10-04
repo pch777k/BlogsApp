@@ -28,7 +28,7 @@ public class CategoryRestController {
 	
 	@Transactional
 	@PostMapping
-	public ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryDto) {
+	public ResponseEntity<Object> addCategory(@RequestBody CategoryDto categoryDto) {
 		Optional<Category> categoryOpt = categoryRepository
 				.findByName(categoryDto.getName());
 		if(categoryOpt.isPresent()) {
@@ -43,10 +43,10 @@ public class CategoryRestController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<?> getCategoryById(@PathVariable Long id) throws ResourceNotFoundException {
+	public ResponseEntity<Object> getCategoryById(@PathVariable Long id) throws ResourceNotFoundException {
 		Category category =  categoryRepository
 				.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException());
+				.orElseThrow(() -> new ResourceNotFoundException("Category with " + id + " not found."));
 		return ResponseEntity.ok(category);
 		
 	}

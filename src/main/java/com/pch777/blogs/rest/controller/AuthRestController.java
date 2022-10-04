@@ -1,7 +1,5 @@
 package com.pch777.blogs.rest.controller;
 
-import java.io.IOException;
-
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -25,8 +23,10 @@ public class AuthRestController {
 	private final AuthService authService;
 	
 	@PostMapping
-	public ResponseEntity<?> register(@Valid @RequestBody RegisterUserDto userDto) throws IOException, ResourceNotFoundException {
-		if(authService.isUsernameExists(userDto.getUsername())) {
+	public ResponseEntity<Object> register(@Valid @RequestBody RegisterUserDto userDto) throws ResourceNotFoundException {
+		boolean usernameExists = authService.isUsernameExists(userDto.getUsername());
+		
+		if(usernameExists) {
 			return ResponseEntity
 			          .badRequest()
 			          .body(new MessageResponse("Error: Username is already taken!"));

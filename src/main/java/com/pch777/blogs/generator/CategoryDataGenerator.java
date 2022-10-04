@@ -54,13 +54,13 @@ public class CategoryDataGenerator {
     }
     
     private Set<String> getRandomTagNames(String categoryName) throws IOException {
-    	Set<String> tags = new HashSet<>();
+    	Set<String> randomTags = new HashSet<>();
     		int randomNumberOfTags = generatorMethods
     				.randomNumberBetweenMinAndMax(minNumberOfTags, maxNumberOfTags);
-    		for(int i=0; i < randomNumberOfTags; i++) {
-    		tags.add(generatorMethods.getRandomItemFromList(getTagNames(categoryName)));
+    		for(int i = 0; i < randomNumberOfTags; i++) {
+    			randomTags.add(generatorMethods.getRandomItemFromList(getTagNames(categoryName)));
     	}
-        return tags;
+        return randomTags;
     }
     
 	private List<String> getCategoryNames() throws IOException {

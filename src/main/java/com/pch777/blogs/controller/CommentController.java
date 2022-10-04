@@ -33,6 +33,7 @@ import lombok.AllArgsConstructor;
 @Controller
 public class CommentController {
 
+	private static final String REDIRECT_ARTICLES = "redirect:/articles/";
 	private final CommentService commentService;
 	private final ArticleService articleService;
 	private final AuthService authService;
@@ -63,7 +64,7 @@ public class CommentController {
 		comment.setCreatedAt(LocalDateTime.now());
 		commentService.addComment(comment);
 
-		return "redirect:/articles/" + articleId;
+		return REDIRECT_ARTICLES + articleId;
 	}
 
 	@GetMapping("/comments/{commentId}/update")
@@ -104,7 +105,7 @@ public class CommentController {
 		
 		comment.setContent(commentDto.getContent());
 		
-		return "redirect:/articles/" + comment.getArticle().getId();
+		return REDIRECT_ARTICLES + comment.getArticle().getId();
 	}
 
 	@GetMapping("/comments/{commentId}/delete")
@@ -121,6 +122,6 @@ public class CommentController {
 			throw new ForbiddenException("You don't have permission to do it.");
 		}
 		
-		return "redirect:/articles/" + comment.getArticle().getId();
+		return REDIRECT_ARTICLES + comment.getArticle().getId();
 	}
 }

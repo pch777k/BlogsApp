@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -36,6 +35,7 @@ import lombok.AllArgsConstructor;
 @Controller
 public class AuthController {
 
+	private static final String SIGNUP_FORM = "signup-form";
 	private final AuthService authService;
 	private final ImageFileService imageFileService;
 
@@ -47,21 +47,23 @@ public class AuthController {
 	@GetMapping("/register")
 	public String showRegistrationForm(Model model) {
 		model.addAttribute("userDto", new RegisterUserDto());
-		return "signup-form";
+		return SIGNUP_FORM;
 	}
 
 	@Transactional
 	@PostMapping("/register")
 	public String processRegister(@Valid @ModelAttribute("userDto") RegisterUserDto userDto, 
-			BindingResult bindingResult, Model model) throws IOException, ResourceNotFoundException {
+			BindingResult bindingResult, Model model) throws ResourceNotFoundException {
 		
 		if (bindingResult.hasErrors()) {
-			return "signup-form";
+			return SIGNUP_FORM;
 		}
 
-		if (authService.isUsernameExists(userDto.getUsername())) {
+		boolean usernameExists = authService.isUsernameExists(userDto.getUsername());
+		
+		if (usernameExists) {
 			model.addAttribute("exist", true);
-			return "signup-form";
+			return SIGNUP_FORM;
 		}
 		Set<String> roles = new HashSet<>();
 		roles.add("USER");
@@ -104,7 +106,7 @@ public class AuthController {
 	
 	@GetMapping("/users/{id}/image")
 	public void showImage(@PathVariable Long id, HttpServletResponse response)
-			throws ServletException, IOException, ResourceNotFoundException {
+			throws IOException, ResourceNotFoundException {
 
 		UserEntity user = authService.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));

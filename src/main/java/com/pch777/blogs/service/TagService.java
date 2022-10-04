@@ -20,7 +20,9 @@ public class TagService {
 	private final TagRepository tagRepository;
 	
 	public void addTag(String name) {
-		if(!tagRepository.existsByNameIgnoreCase(name)) {
+		boolean tagExists = tagRepository.existsByNameIgnoreCase(name);
+		
+		if(!tagExists) {
 			Tag tag = new Tag();
 			tag.setName(name);
 			tagRepository.save(tag);
@@ -38,7 +40,7 @@ public class TagService {
 	public List<String> getAllTagsName() {
 		return tagRepository.findAll()
 				.stream()
-				.map(t -> t.getName())
+				.map(Tag::getName)
 				.sorted()
 				.collect(Collectors.toList());
 	}

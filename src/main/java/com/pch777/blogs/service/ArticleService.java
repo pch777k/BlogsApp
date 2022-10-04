@@ -59,7 +59,7 @@ public class ArticleService {
 	
 	public void updateArticle(Long articleId, ArticleDto articleDto) throws ResourceNotFoundException {
 		Article article = articleRepository.findById(articleId)
-				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + articleId + " not found"));;
+				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + articleId + " not found"));
 		
 		Category category = categoryService
 				.findByName(articleDto.getCategoryName())
@@ -133,7 +133,7 @@ public class ArticleService {
 		Set<String> tagNames = article
 				.getTags()
 				.stream()
-				.map(t -> t.getName())
+				.map(Tag::getName)
 				.collect(Collectors.toSet());
 		ArticleDto articleDto = new ArticleDto();
 		articleDto.setTitle(article.getTitle());

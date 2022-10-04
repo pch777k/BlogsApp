@@ -94,19 +94,17 @@ public class CommentRestController {
 	}		
 	
 	private URI toURI(Long commentId) {
-		URI uri = ServletUriComponentsBuilder
+		return ServletUriComponentsBuilder
 				.fromCurrentRequestUri()
 				.path("/" + commentId.toString())
 				.build()
 				.toUri();
-		return uri;
 	}
 
 	private UserEntity toUser(Principal principal) {
-		UserEntity user = authService
-			.findByUsername(principal.getName())
-			.orElseThrow(() -> new UsernameNotFoundException("User with username " + principal.getName() + " not found."));
-		return user;
+		return authService
+				.findByUsername(principal.getName())
+				.orElseThrow(() -> new UsernameNotFoundException("User with username " + principal.getName() + " not found."));
 	}
 
 	private Comment toCreateComment(CommentDto commentDto, Article article, UserEntity user) {
