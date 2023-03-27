@@ -18,12 +18,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class CustomGlobalExceptionHandler {
 
+	private static final String ERROR = "error";
+	private static final String STATUS = "status";
+	private static final String TIMESTAMP = "timestamp";
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 	    Map<String, Object> body = new LinkedHashMap<>();
 	    HttpStatus status = HttpStatus.BAD_REQUEST;
-	    body.put("timestamp", new Date());
-	    body.put("status", status.value());
+	    body.put(TIMESTAMP, new Date());
+	    body.put(STATUS, status.value());
 	    List<String> errors = ex
 	        .getBindingResult()
 	        .getFieldErrors()
@@ -38,10 +42,29 @@ public class CustomGlobalExceptionHandler {
 	public ResponseEntity<Object> handleMethodArgumentNotValidException(SQLException ex) {
 	    Map<String, Object> body = new LinkedHashMap<>();
 	    HttpStatus status = HttpStatus.BAD_REQUEST;
-	    body.put("timestamp", new Date());
-	    body.put("status", status.value());
-	    String error = ex.getMessage();
-	    body.put("error", error);
+	    body.put(TIMESTAMP, new Date());
+	    body.put(STATUS, status.value()); 
+	    body.put(ERROR, ex.getMessage());
+	    return new ResponseEntity<>(body, status);
+	}
+	
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex) {
+	    Map<String, Object> body = new LinkedHashMap<>();
+	    HttpStatus status = HttpStatus.NOT_FOUND;
+	    body.put(TIMESTAMP, new Date());
+	    body.put(STATUS, status.value()); 
+	    body.put(ERROR, ex.getMessage());
+	    return new ResponseEntity<>(body, status);
+	}
+	
+	@ExceptionHandler(ForbiddenException.class)
+	public ResponseEntity<Object> handleForbiddenExceptionException(ForbiddenException ex) {
+	    Map<String, Object> body = new LinkedHashMap<>();
+	    HttpStatus status = HttpStatus.FORBIDDEN;
+	    body.put(TIMESTAMP, new Date());
+	    body.put(STATUS, status.value());
+	    body.put(ERROR, ex.getMessage());
 	    return new ResponseEntity<>(body, status);
 	}
 }
