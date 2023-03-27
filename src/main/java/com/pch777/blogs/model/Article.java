@@ -1,12 +1,14 @@
 package com.pch777.blogs.model;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,6 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -64,7 +67,7 @@ public class Article {
 	@JsonIgnore
 	private Blog blog;
 	
-	@ManyToOne
+	@ManyToOne//(fetch = FetchType.LAZY)
 	@JoinColumn(name="category_id")
 	@JsonIgnore
 	private Category category;
@@ -72,11 +75,11 @@ public class Article {
 	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinTable
 	@JsonIgnoreProperties("articles")
-	private Set<Tag> tags;
+	private Set<Tag> tags = new HashSet<>();
 	
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "article_id")
-	private Set<Comment> comments;
+	private Set<Comment> comments = new HashSet<>();
 	
 	//@CreatedDate
 	private LocalDateTime createdAt;

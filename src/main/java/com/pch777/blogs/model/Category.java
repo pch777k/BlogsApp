@@ -1,7 +1,9 @@
 package com.pch777.blogs.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,9 +29,9 @@ public class Category {
 
 	private String name;
 
-	@OneToMany
-	@JoinColumn(name = "category_id")
-	private Set<Article> articles;
+	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+	//@JoinColumn(name = "category_id")
+	private Set<Article> articles = new HashSet<>();
 
 	public Category(String name) {
 		this.name = name;
