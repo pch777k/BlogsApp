@@ -90,7 +90,7 @@ public class TagController {
 	}
 
 	@GetMapping("tags/{tagName}")
-	public String getArticlesByCategoryName(@PathVariable String tagName,
+	public String getArticlesByTagName(@PathVariable String tagName,
 			@RequestParam(defaultValue = "") String keyword, Model model) throws ResourceNotFoundException {
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

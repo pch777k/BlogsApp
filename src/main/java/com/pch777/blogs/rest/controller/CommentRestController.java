@@ -1,6 +1,5 @@
 package com.pch777.blogs.rest.controller;
 
-import java.net.URI;
 import java.security.Principal;
 import java.util.List;
 
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.pch777.blogs.dto.CommentDto;
 import com.pch777.blogs.model.Article;
@@ -58,9 +56,8 @@ public class CommentRestController {
 				.getArticleById(articleId)
 				.map(article -> {
 					UserEntity user = toUser(principal);
-					Comment comment = toCreateComment(commentDto, article, user);	    
-				    URI uri = toURI(comment.getId());
-				    return ResponseEntity.created(uri).build();
+					toCreateComment(commentDto, article, user);	    
+				    return ResponseEntity.ok().build();
 		}).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 	
@@ -92,14 +89,6 @@ public class CommentRestController {
 		            }
 				}).orElse(ResponseEntity.notFound().build());					
 	}		
-	
-	private URI toURI(Long commentId) {
-		return ServletUriComponentsBuilder
-				.fromCurrentRequestUri()
-				.path("/" + commentId.toString())
-				.build()
-				.toUri();
-	}
 
 	private UserEntity toUser(Principal principal) {
 		return authService

@@ -18,7 +18,7 @@
 
 		<div th:replace="fragments/nav :: nav(href='/', search='search')"></div>
 
-		<th:block th:if="${totalBlogs == 0}">
+		<th:block th:if="${totalBlogs == 0 and #strings.equals(searchKeyword, '')  }">
 		<div class="border rounded p-1 mt-2">
 			<a th:href="@{/}" class="btn btn-sm btn-info mr-2">Refresh page</a>
 			If heroku did not load sample data, try refreshing the page.
