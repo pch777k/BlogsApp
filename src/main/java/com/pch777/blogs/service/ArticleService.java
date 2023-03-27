@@ -1,5 +1,6 @@
 package com.pch777.blogs.service;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -7,16 +8,26 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.pch777.blogs.dto.ArticleDto;
+import com.pch777.blogs.exception.ForbiddenException;
 import com.pch777.blogs.exception.ResourceNotFoundException;
 import com.pch777.blogs.model.Article;
+import com.pch777.blogs.model.Blog;
 import com.pch777.blogs.model.Category;
+import com.pch777.blogs.model.ImageFile;
 import com.pch777.blogs.model.Tag;
+import com.pch777.blogs.model.UserEntity;
 import com.pch777.blogs.repository.ArticleRepository;
+import com.pch777.blogs.repository.BlogRepository;
+import com.pch777.blogs.repository.UserEntityRepository;
+import com.pch777.blogs.security.UserSecurity;
 
 import lombok.AllArgsConstructor;
 
@@ -25,8 +36,12 @@ import lombok.AllArgsConstructor;
 public class ArticleService {
 
 	private final ArticleRepository articleRepository;
+	private final BlogRepository blogRepository;
+	private final UserEntityRepository userRepository;
+	private final ImageFileService imageFileService;
 	private final CategoryService categoryService;
 	private final TagService tagService;
+	private final UserSecurity userSecurity;
 	
 	
 	public List<Article> getAllArticles() {
@@ -57,6 +72,43 @@ public class ArticleService {
 		return articleRepository.save(article);
 	}
 	
+	public Article createArticle(Long blogId, ArticleDto articleDto, Principal principal) throws ResourceNotFoundException {
+		Blog blog = blogRepository.findById(blogId)
+				.orElseThrow(() -> new ResourceNotFoundException("Blog with id " + blogId + " not found"));
+		if (!userSecurity.isOwnerOrAdmin(blog.getUser().getUsername(), principal.getName())) {
+			//return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+			throw new ForbiddenException("Access denied");
+		}
+		UserEntity user = userRepository.findByUsername(principal.getName()).orElseThrow(
+				() -> new UsernameNotFoundException("User with username " + principal.getName() + " not found"));
+		
+		Article article = new Article();
+		
+		Category category = categoryService
+				.findByName(articleDto.getCategoryName())
+				.orElseThrow(() -> new ResourceNotFoundException("Category with name " + articleDto.getCategoryName() + " not found"));
+
+		article.setCategory(category);
+		
+		Set<Tag> tags = tagService.fetchTagsByNames(articleDto.getTagsDto());
+		article.setTags(tags);
+
+		ImageFile imageFile = new ImageFile();
+		imageFileService.saveImageFile(imageFile);
+		
+		article.setTitle(articleDto.getTitle());
+		article.setContent(articleDto.getContent());
+		article.setSummary(articleDto.getSummary());
+		article.setCreatedAt(LocalDateTime.now());
+		
+		
+		article.setImage(imageFile);
+		article.setBlog(blog);
+		article.setUser(user);
+		
+		return articleRepository.save(article);
+	}
+	
 	public void updateArticle(Long articleId, ArticleDto articleDto) throws ResourceNotFoundException {
 		Article article = articleRepository.findById(articleId)
 				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + articleId + " not found"));
@@ -71,13 +123,31 @@ public class ArticleService {
 		article.setTags(tags);
 		article.setSummary(articleDto.getSummary());
 		article.setTitle(articleDto.getTitle());
-		article.setContent(articleDto.getContent());
-		
+		article.setContent(articleDto.getContent());	
 	
 	}
 	
-	public void deleteArticle(Long id) {
-		articleRepository.deleteById(id);
+	public Article changeArticle(Long articleId, @Valid ArticleDto articleDto, Principal principal) throws ResourceNotFoundException {
+		Article article = articleRepository.findById(articleId)
+				.orElseThrow(() -> new ResourceNotFoundException("Article with id " + articleId + " not found"));
+		
+		if (!userSecurity.isOwnerOrAdmin(article.getUser().getUsername(), principal.getName())) {
+			throw new ForbiddenException();
+		}
+		
+		Category category = categoryService
+				.findByName(articleDto.getCategoryName())
+				.orElseThrow(() -> new ResourceNotFoundException("Category with name " + articleDto.getCategoryName() + " not found"));
+
+		Set<Tag> tags = tagService.fetchTagsByNames(articleDto.getTagsDto());
+		
+		article.setCategory(category);
+		article.setTags(tags);
+		article.setSummary(articleDto.getSummary());
+		article.setTitle(articleDto.getTitle());
+		article.setContent(articleDto.getContent());	
+		
+		return article;
 	}
 
 	public List<Article> getArticlesByBlogId(Long id) {
@@ -147,5 +217,7 @@ public class ArticleService {
 	public Page<Article> getArticlesByBlogIdAndByCategory(Pageable pageable, Long blogId, String categoryName) {
 		return articleRepository.findArticlesByBlogIdAndByCategory(pageable, blogId, categoryName);
 	}
+
+	
 
 }

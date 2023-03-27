@@ -77,10 +77,6 @@ public class AuthService {
 		return userRepository.findById(id);
 	}
 
-	public boolean isUserPresent(String username) {
-		return userRepository.existsByUsernameIgnoreCase(username);
-	}
-
 	public RegisterUserDto userToRegisterDto(UserEntity user) {
 		RegisterUserDto userDto = new RegisterUserDto();
 		userDto.setFirstName(user.getFirstName());

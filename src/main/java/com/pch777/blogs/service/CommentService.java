@@ -3,8 +3,6 @@ package com.pch777.blogs.service;
 import java.util.List;
 import java.util.Optional;
 
-import javax.validation.Valid;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,7 +34,7 @@ public class CommentService {
 		return commentRepository.findById(id);
 	}
 
-	public Comment addComment(@Valid Comment comment) {	
+	public Comment addComment(Comment comment) {	
 		return commentRepository.save(comment);
 	}
 
