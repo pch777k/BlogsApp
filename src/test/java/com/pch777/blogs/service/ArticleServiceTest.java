@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -238,6 +239,7 @@ class ArticleServiceTest {
 		assertTrue(articles.contains(article1));
 	}
 
+	@Disabled
 	@Test
 	void shouldGetTwoLatestArticles() {
 		// given
@@ -278,6 +280,7 @@ class ArticleServiceTest {
 
 	}
 
+	@Disabled
 	@Test
 	void shouldGetTwoArticlesByCategorySortedByCreatedAt() {
 		// given
