@@ -25,7 +25,7 @@ public class UserSecurity {
 
 
 	public boolean isAdmin(String username) {
-		if(authService.isUserPresent(username)) {
+		if(authService.isUsernameExists(username)) {
 			UserEntity user = authService
 				.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("User with username " + username + " not found."));
