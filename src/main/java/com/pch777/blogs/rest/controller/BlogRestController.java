@@ -111,7 +111,7 @@ public class BlogRestController {
 	}
 	
 	
-	@DeleteMapping("/{blogId")
+	@DeleteMapping("/{blogId}")
 	public ResponseEntity<Object> deleteBlogById(@PathVariable Long blogId, Principal principal) {
 		return blogRepository
 				.findById(blogId)

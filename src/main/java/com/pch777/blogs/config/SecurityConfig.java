@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http
 			.csrf().disable()
 			.authorizeRequests()
-				.antMatchers("/api/auth").permitAll()
+				.antMatchers("/api/auth", "/v3/api-docs/").permitAll()
 				.antMatchers(HttpMethod.GET, "/*", "/index", "/blogs/**","/api/blogs","/api/articles", "/api/articles/*").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/blogs/*/articles", "/api/blogs/", "/api/blogs/*","/api/*/articles").permitAll()
 				.antMatchers(HttpMethod.GET, "/articles/**", "/articles/*/image").permitAll()
@@ -64,7 +64,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers("/css/**");
 		web.ignoring().antMatchers("/js/**");
 		web.ignoring().antMatchers("/img/**");
+		web.ignoring().antMatchers("/api/auth/**");
+		web.ignoring().antMatchers("/v3/api-docs/**");
+		web.ignoring().antMatchers("configuration/**");
+		web.ignoring().antMatchers("/swagger*/**");
+		web.ignoring().antMatchers("/webjars/**");
+		web.ignoring().antMatchers("/swagger-ui/**");
+
 	}
+	
+//	@Bean
+//	public WebSecurityCustomizer webSecurityCustomizer() {
+//	    return (web) -> web.ignoring()
+//	                       .antMatchers("/api/auth/**")
+//	                       .antMatchers("/v3/api-docs/**")
+//	                       .antMatchers("configuration/**")
+//	                       .antMatchers("/swagger*/**")
+//	                       .antMatchers("/webjars/**")
+//	                       .antMatchers("/swagger-ui/**");
+//	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
