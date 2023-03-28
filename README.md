@@ -25,6 +25,7 @@ Using the Blogs application, you can create your own blog, write articles. Each 
 - Bootstrap 4
 - JavaScript
 - PostgreSQL
+- Swagger OpenAPI
 - Bootstrap 4 Select Picker
 - Summernote editor
   
