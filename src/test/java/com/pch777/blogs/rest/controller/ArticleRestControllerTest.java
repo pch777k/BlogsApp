@@ -1,9 +1,8 @@
 package com.pch777.blogs.rest.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -12,13 +11,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -33,7 +30,6 @@ import com.pch777.blogs.config.SecurityConfig;
 import com.pch777.blogs.dto.ArticleDto;
 import com.pch777.blogs.model.Article;
 import com.pch777.blogs.model.Blog;
-import com.pch777.blogs.model.Category;
 import com.pch777.blogs.model.UserEntity;
 import com.pch777.blogs.repository.BlogRepository;
 import com.pch777.blogs.repository.UserEntityRepository;
