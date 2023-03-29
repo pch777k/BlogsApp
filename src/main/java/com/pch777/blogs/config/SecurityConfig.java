@@ -72,17 +72,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers("/swagger-ui/**");
 
 	}
-	
-//	@Bean
-//	public WebSecurityCustomizer webSecurityCustomizer() {
-//	    return (web) -> web.ignoring()
-//	                       .antMatchers("/api/auth/**")
-//	                       .antMatchers("/v3/api-docs/**")
-//	                       .antMatchers("configuration/**")
-//	                       .antMatchers("/swagger*/**")
-//	                       .antMatchers("/webjars/**")
-//	                       .antMatchers("/swagger-ui/**");
-//	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {

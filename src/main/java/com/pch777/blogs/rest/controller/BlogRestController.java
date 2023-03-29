@@ -8,6 +8,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,7 +127,7 @@ public class BlogRestController {
 	}
 	
 	@Transactional
-	@PostMapping("/{blogId}/images")
+	@PostMapping(value = "/{blogId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Object> addPhotoToBlog(@PathVariable Long blogId, 
 			 @RequestParam(value = "file") MultipartFile multipartFile, Principal principal) {
 

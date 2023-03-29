@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -87,7 +88,7 @@ public class ArticleRestController {
 	}
 	
 	@Transactional
-	@PostMapping("/articles/{articleId}/images")
+	@PostMapping(value = "/articles/{articleId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Object> addPhotoToBlog(@PathVariable Long articleId, 
 			 @RequestParam(value = "file") MultipartFile multipartFile, Principal principal) {
 
