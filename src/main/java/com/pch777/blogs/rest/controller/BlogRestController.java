@@ -2,7 +2,6 @@ package com.pch777.blogs.rest.controller;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.time.LocalDate;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -149,17 +148,5 @@ public class BlogRestController {
                 })
 				.orElse(ResponseEntity.notFound().build());
 	}
-/*
-	private ImageFile multipartToImageFile(MultipartFile multipartFile) throws IOException {
-		ImageFile imageFile = new ImageFile();
-		imageFile.setFilename(multipartFile.getOriginalFilename());
-		imageFile.setFile(multipartFile.getBytes());
-		imageFile.setContentType(multipartFile.getContentType());
-		imageFile.setFileLength(multipartFile.getSize());
-		imageFile.setCreatedAt(LocalDate.now());
-		imageFileService.saveImageFile(imageFile);
-		return imageFile;
-	} */
-	
-	
+		
 }
